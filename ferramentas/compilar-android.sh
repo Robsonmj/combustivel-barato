@@ -13,7 +13,13 @@ SENHA="$(sed -n 's/^Senha (do arquivo e da chave): //p' "$RAIZ/android-chave/LEI
 SAIDA="$RAIZ/play-store/arquivos"
 mkdir -p "$SAIDA"
 
-cd "$RAIZ/android"
+# compila fora do OneDrive (a sincronização trava os arquivos temporários do Gradle)
+OBRA="${LOCALAPPDATA:-$HOME/AppData/Local}/combustivel-android"
+OBRA="$(cygpath -u "$OBRA")"
+mkdir -p "$OBRA"
+rm -rf "$OBRA/app/src"
+cp -r "$RAIZ/android/." "$OBRA/"
+cd "$OBRA"
 echo "sdk.dir=$(cygpath -m "$SDK")" > local.properties
 ./gradlew.bat bundleRelease assembleRelease --no-daemon -q
 
