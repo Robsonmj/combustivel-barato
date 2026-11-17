@@ -4,8 +4,8 @@ window.AJUSTES = {
   // Supabase > Project Settings > API: "Project URL" e a chave "anon public" (ou "publishable").
   // Essas duas informações são públicas por natureza: a segurança vem das regras do arquivo supabase/esquema.sql.
   // NUNCA coloque aqui a chave "service_role" / "secret".
-  supabaseUrl: '',
-  supabaseChave: '',
+  supabaseUrl: 'https://xubjrcujwtzgtjpbzjml.supabase.co',
+  supabaseChave: 'sb_publishable_1rz0U7QsJZzm6uy8BY0sSQ_gM7YUvG7',
 
   // WhatsApp para postos e patrocinadores falarem com você (só números, com DDI e DDD, ex.: 5544999999999).
   // Fica visível no app. Deixe vazio para não mostrar.
