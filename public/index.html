@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>Combustível Barato · Toledo</title>
+  <link rel="icon" href="icone.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <img src="icone.svg" alt="" width="28" height="28" />
+      <div>
+        <h1>Combustível Barato</h1>
+        <p id="cidade">Toledo · PR</p>
+      </div>
+    </div>
+    <nav class="chips" id="chips" aria-label="Escolha o combustível"></nav>
+  </header>
+
+  <main class="layout">
+    <section class="painel" id="painel" aria-label="Lista de postos">
+      <button class="alca" id="alca" aria-label="Expandir ou recolher a lista"><span></span></button>
+      <div id="dica" class="dica" hidden></div>
+      <div class="ordem" role="tablist" aria-label="Ordenar postos">
+        <button role="tab" data-ordem="preco" aria-selected="true">Mais barato</button>
+        <button role="tab" data-ordem="distancia" aria-selected="false">Mais perto</button>
+        <button role="tab" data-ordem="custo" aria-selected="false" title="Considera o gasto para ir até o posto">Custo-benefício</button>
+      </div>
+      <p class="info-custo" id="info-custo" hidden>
+        Custo-benefício soma ao preço o combustível gasto para ir e voltar até o posto
+        (carro de 10 km/l, abastecendo 40 litros).
+      </p>
+      <ol class="lista" id="lista"><li class="vazio">Carregando postos…</li></ol>
+      <footer class="rodape" id="rodape"></footer>
+    </section>
+
+    <section class="mapa-area">
+      <div id="mapa" aria-label="Mapa dos postos"></div>
+      <button class="btn-local" id="btn-local" title="Usar minha localização">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="3.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        <span>Perto de mim</span>
+      </button>
+    </section>
+  </main>
+
+  <dialog id="detalhe" class="detalhe" aria-labelledby="detalhe-nome">
+    <div class="detalhe-conteudo" id="detalhe-conteudo"></div>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

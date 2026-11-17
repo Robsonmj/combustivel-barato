@@ -1,0 +1,58 @@
+# Robô de publicação: a cada hora coleta os preços e publica o site no GitHub Pages.
+name: Coletar preços e publicar
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # todo minuto 17 de cada hora (o GitHub pode atrasar alguns minutos)
+  workflow_dispatch:        # permite rodar manualmente pela aba Actions
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # O banco fica guardado no cache do GitHub entre uma execução e outra (guarda o histórico)
+      - name: Recuperar banco de dados
+        uses: actions/cache/restore@v4
+        with:
+          path: dados
+          key: banco-${{ github.run_id }}
+          restore-keys: banco-
+
+      - name: Coletar preços (Menor Preço)
+        run: node src/coletar-agora.js || echo "Coleta falhou; publicando os últimos preços conhecidos."
+
+      - name: Guardar banco de dados
+        uses: actions/cache/save@v4
+        with:
+          path: dados
+          key: banco-${{ github.run_id }}
+
+      - name: Gerar site
+        run: node src/exportar-site.js
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

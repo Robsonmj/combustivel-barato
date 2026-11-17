@@ -1,0 +1,10 @@
+{
+  "name": "Combustível Barato · Toledo",
+  "short_name": "Combustível",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f5",
+  "theme_color": "#0f766e",
+  "lang": "pt-BR",
+  "icons": [{ "src": "icone.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

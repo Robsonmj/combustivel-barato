@@ -1,0 +1,15 @@
+{
+  "name": "precos-combustivel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Protótipo: mapa de preços de combustível da cidade piloto (Toledo-PR)",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "coletar": "node src/coletar-agora.js",
+    "teste": "node --test test/regras.test.js"
+  }
+}
