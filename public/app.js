@@ -285,6 +285,7 @@
       : '';
     $('#rodape').innerHTML = `Dados: <strong>Nota Paraná / Menor Preço</strong> (preços das notas fiscais eletrônicas),
       postos e motoristas. ${st} Confira o preço na bomba.<br>
+      App independente, sem vínculo com o Governo do Paraná ou com a Receita Estadual.<br>
       <a href="painel.html">É dono de posto? Atualize seus preços</a>${anuncie}<br>
       <a href="termos.html">Termos de uso</a> · <a href="privacidade.html">Privacidade</a>`;
     desenharPatrocinio();

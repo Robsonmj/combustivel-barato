@@ -75,6 +75,26 @@
         <p style="font-size:13px;color:var(--texto-2)">Conferimos se você é responsável pelo posto antes de liberar. Normalmente em até 1 dia útil.</p></div>`;
     }
     await formNovoPedido(pedidos);
+
+    const exc = document.createElement('div');
+    exc.className = 'cartao';
+    exc.innerHTML = `<h3>Excluir minha conta</h3>
+      <p style="font-size:14px">Apaga seu login, seus pedidos de acesso e os preços que você informou. Não dá para desfazer.</p>
+      <button class="btn perigo" id="excluir">Excluir minha conta</button><p class="msg" role="status"></p>`;
+    conteudo.appendChild(exc);
+    exc.querySelector('#excluir').addEventListener('click', async () => {
+      if (!confirm('Excluir sua conta e todos os seus dados? Isso não pode ser desfeito.')) return;
+      const { error } = await sb.rpc('excluir_minha_conta');
+      const msg = exc.querySelector('.msg');
+      if (error) {
+        msg.className = 'msg erro';
+        msg.textContent = 'Erro: ' + error.message;
+        return;
+      }
+      await sb.auth.signOut();
+      conteudo.innerHTML = '<div class="cartao"><h3>Conta excluída</h3><p>Seus dados foram apagados.</p><a class="btn" href="./">Voltar ao mapa</a></div>';
+      $('#sair').hidden = true;
+    });
   }
 
   async function cartaoPosto(p) {

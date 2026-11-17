@@ -110,3 +110,16 @@ drop policy if exists "todos leem patrocinios" on patrocinios;
 create policy "todos leem patrocinios" on patrocinios for select using (true);
 drop policy if exists "admin gerencia patrocinios" on patrocinios;
 create policy "admin gerencia patrocinios" on patrocinios for all using (is_admin()) with check (is_admin());
+
+-- ---------- exclusão da própria conta (exigência da Google Play) ----------
+create or replace function excluir_minha_conta() returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'não autenticado'; end if;
+  delete from precos_posto where user_id = auth.uid();
+  delete from postos_dono where user_id = auth.uid();
+  delete from auth.users where id = auth.uid();
+end;
+$$;
+revoke all on function excluir_minha_conta() from public, anon;
+grant execute on function excluir_minha_conta() to authenticated;

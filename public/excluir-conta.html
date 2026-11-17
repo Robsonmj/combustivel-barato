@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Excluir conta · Combustível Barato</title>
+  <link rel="icon" href="icone.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+  <link rel="stylesheet" href="paginas.css" />
+</head>
+<body class="pagina">
+  <header class="topo">
+    <a class="marca" href="./"><img src="icone.svg" alt="" width="28" height="28" />
+      <div><h1>Combustível Barato</h1><p>Excluir conta</p></div></a>
+  </header>
+  <main class="conteudo">
+    <h2>Como excluir sua conta e seus dados</h2>
+    <p><strong>Motoristas</strong> não criam conta no Combustível Barato. Nenhum dado pessoal fica guardado conosco;
+      para apagar o que está no seu aparelho, basta desinstalar o app.</p>
+
+    <h3>Donos de posto</h3>
+    <ol>
+      <li>Abra a <a href="painel.html">Área do posto</a> e entre com seu e-mail.</li>
+      <li>No fim da página, toque em <strong>Excluir minha conta</strong> e confirme.</li>
+    </ol>
+    <p>Na hora são apagados: seu login (e-mail), seus pedidos de acesso (nome, telefone e CNPJ) e os preços que você informou.
+      Não guardamos cópia desses dados depois da exclusão.</p>
+    <p>Se preferir, peça a exclusão pelo e-mail <span class="contato-email">de contato</span>, informando o e-mail usado
+      no painel. Atendemos em até 15 dias.</p>
+  </main>
+  <footer class="rodape-pagina"><a href="./">Voltar ao mapa</a> · <a href="privacidade.html">Privacidade</a></footer>
+  <script src="ajustes.js"></script>
+  <script>
+    const e = (window.AJUSTES || {}).emailContato;
+    if (e) document.querySelectorAll('.contato-email').forEach((s) => { s.innerHTML = ''; const a = document.createElement('a'); a.href = 'mailto:' + e; a.textContent = e; s.appendChild(a); });
+  </script>
+</body>
+</html>

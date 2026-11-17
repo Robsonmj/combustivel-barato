@@ -3,3 +3,5 @@ _site/
 node_modules/
 documentos/
 .claude/
+android/
+android-chave/
