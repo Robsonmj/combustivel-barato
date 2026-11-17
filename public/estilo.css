@@ -245,5 +245,6 @@ details.informar summary { cursor: pointer; font-weight: 600; font-size: 14px; c
   .alca { display: flex; justify-content: center; border: 0; background: transparent; padding: 6px 0 10px; }
   .alca span { width: 42px; height: 5px; border-radius: 3px; background: var(--borda); }
   .btn-local { bottom: 26px; }
+  .layout:has(.painel.aberto) .btn-local { display: none; }
   .detalhe { width: 100vw; max-width: 100vw; margin: auto 0 0; border-radius: 16px 16px 0 0; max-height: 90vh; }
 }

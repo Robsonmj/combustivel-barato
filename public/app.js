@@ -474,8 +474,11 @@
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
   let pedidoInstalacao = null;
+  // Já instalado (app da Play Store ou ícone na tela inicial): não oferece instalar de novo.
+  const jaInstalado = matchMedia('(display-mode: standalone)').matches || document.referrer.startsWith('android-app://');
   window.addEventListener('beforeinstallprompt', (ev) => {
     ev.preventDefault();
+    if (jaInstalado) return;
     pedidoInstalacao = ev;
     $('#instalar').hidden = false;
   });
