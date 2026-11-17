@@ -116,10 +116,16 @@ const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 async function buscarPagina(cfg, local, tp, offset) {
   const url = `${cfg.baseUrl}/produtos?local=${local}&tp_comb=${tp}&raio=${cfg.raioKm}&data=-1` +
     (offset ? `&offset=${offset}` : '');
-  const resp = await fetch(url, {
-    headers: { 'User-Agent': cfg.userAgent, Accept: 'application/json' },
-    signal: AbortSignal.timeout(20000),
-  });
+  let resp;
+  try {
+    resp = await fetch(url, {
+      headers: { 'User-Agent': cfg.userAgent, Accept: 'application/json' },
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch (e) {
+    const causa = e.cause ? ` (${e.cause.code || e.cause.message || e.cause})` : '';
+    throw new Error(`Sem conexão com o Menor Preço: ${e.message}${causa}`);
+  }
   if (resp.status === 403 || resp.status === 429) {
     throw new Error(`Acesso recusado pelo Menor Preço (HTTP ${resp.status}). Coleta interrompida; não haverá nova tentativa até o próximo ciclo.`);
   }
