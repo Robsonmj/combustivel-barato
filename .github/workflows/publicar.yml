@@ -1,5 +1,6 @@
-# Publica o site no GitHub Pages sempre que chegam dados novos (enviados pelo PC que faz a coleta).
-# A coleta não roda aqui porque o Menor Preço não aceita conexões dos servidores do GitHub.
+# Publica o site no GitHub Pages a cada envio ao repositório.
+# Os preços não vêm daqui: a coleta roda no Supabase (supabase/coleta.sql) e o app lê de lá.
+# Os JSON em publicado/api ficam só como reserva, caso o Supabase não responda.
 name: Publicar site
 
 on:

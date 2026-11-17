@@ -283,6 +283,7 @@ begin
   return 'consulta enviada';
 end $$;
 revoke all on function mp_passo() from public, anon, authenticated;
+revoke all on function mp_gravar_pagina(jsonb, int), mp_status(boolean, text, int) from public, anon, authenticated;
 
 -- ---------- leitura pelo app (mesmo formato dos arquivos JSON antigos) ----------
 create or replace function api_postos(comb text) returns jsonb

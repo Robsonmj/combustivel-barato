@@ -78,8 +78,8 @@
   }
   const fmtKm = (km) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1).replace('.', ',')} km`);
 
-  // Na versão publicada (GitHub Pages) não há servidor: os dados vêm de arquivos JSON
-  // gerados a cada hora. Aqui as rotas da API são traduzidas para esses arquivos.
+  // Na versão publicada (GitHub Pages) os preços vêm do Supabase (apiSupabase, abaixo); como reserva,
+  // as rotas da API são traduzidas para os arquivos JSON publicados no site.
   function rotaEstatica(url) {
     const u = new URL(url, 'http://x');
     if (u.pathname === '/api/config') return 'api/config.json';
@@ -89,8 +89,39 @@
     return url;
   }
 
+  // Preços atualizados direto do Supabase (coleta automática no servidor, supabase/coleta.sql).
+  // Se o Supabase não responder, usa os arquivos JSON publicados como reserva.
+  async function apiSupabase(url) {
+    const aj = window.AJUSTES || {};
+    if (!aj.supabaseUrl || !aj.supabaseChave) return null;
+    const u = new URL(url, 'http://x');
+    let rpc, corpo;
+    const m = u.pathname.match(/^\/api\/postos\/(\d+)$/);
+    if (u.pathname === '/api/postos') { rpc = 'api_postos'; corpo = { comb: u.searchParams.get('combustivel') }; }
+    else if (m) { rpc = 'api_posto'; corpo = { pid: Number(m[1]) }; }
+    else return null;
+    try {
+      const r = await fetch(`${aj.supabaseUrl}/rest/v1/rpc/${rpc}`, {
+        method: 'POST',
+        headers: { apikey: aj.supabaseChave, 'Content-Type': 'application/json' },
+        body: JSON.stringify(corpo),
+      });
+      if (!r.ok) return null;
+      const dados = await r.json();
+      if (rpc === 'api_posto' && !dados.posto) throw new Error('Posto não encontrado');
+      return dados;
+    } catch (e) {
+      if (e.message === 'Posto não encontrado') throw e;
+      return null;
+    }
+  }
+
   async function api(url, opcoes) {
-    if (window.MODO_ESTATICO) url = rotaEstatica(url) + '?v=' + Math.floor(Date.now() / 300000);
+    if (window.MODO_ESTATICO) {
+      const online = await apiSupabase(url);
+      if (online) return online;
+      url = rotaEstatica(url) + '?v=' + Math.floor(Date.now() / 300000);
+    }
     const r = await fetch(url, opcoes);
     const dados = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(dados.erro || 'Erro ' + r.status);

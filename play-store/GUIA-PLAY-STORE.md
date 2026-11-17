@@ -146,6 +146,10 @@ O Combustível Barato é um app independente, sem vínculo com o Governo do Para
   ```
   O primeiro número (código da versão) precisa aumentar a cada envio.
 
-## Atenção: preços dependem do seu PC
+## Preços: atualização automática, sem depender do seu PC
 
-A coleta de preços roda no seu computador, de hora em hora. Com o app na loja, se o PC ficar desligado, os preços envelhecem e o app avisa o usuário. Antes de divulgar em massa, vale manter o PC ligado ou resolver isso de vez com a resposta da Secretaria da Fazenda (SEFA).
+A coleta roda dentro do Supabase, num servidor em São Paulo, de hora em hora. Seu computador pode ficar desligado. O app lê os preços direto de lá. Se o Supabase falhar, o app mostra os últimos preços publicados no site.
+
+- **Ver se está funcionando:** no rodapé do app aparece "Última coleta há X min".
+- **Pausar a coleta:** no Supabase, em SQL Editor, rode `select cron.unschedule('mp_coleta');`.
+- **Se o Menor Preço recusar o acesso:** a coleta para sozinha até o ciclo seguinte e o rodapé avisa. A solução definitiva continua sendo a resposta da Secretaria da Fazenda (SEFA).
