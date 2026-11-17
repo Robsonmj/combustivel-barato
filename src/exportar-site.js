@@ -1,24 +1,17 @@
-// Gera a versão estática do site (pasta _site) para publicar no GitHub Pages.
+// Grava os dados do banco em arquivos JSON na pasta publicado/api (vão para o GitHub).
 // Uso: node src/exportar-site.js
-// Copia a pasta public e grava os dados do banco em arquivos JSON (api/*.json).
 const fs = require('node:fs');
 const path = require('node:path');
 const config = require('../config');
 const db = require('./db');
 
-const SAIDA = path.join(__dirname, '..', '_site');
+const SAIDA = path.join(__dirname, '..', 'publicado', 'api');
 const repo = db.abrir(config.arquivoBanco);
 const desde = (dias) => new Date(Date.now() - dias * 86400000).toISOString();
 
 fs.rmSync(SAIDA, { recursive: true, force: true });
-fs.cpSync(path.join(__dirname, '..', 'public'), SAIDA, { recursive: true });
-fs.mkdirSync(path.join(SAIDA, 'api'));
-const gravar = (nome, dados) => fs.writeFileSync(path.join(SAIDA, 'api', nome), JSON.stringify(dados));
-
-// Marca o index.html como versão estática
-const index = path.join(SAIDA, 'index.html');
-fs.writeFileSync(index, fs.readFileSync(index, 'utf8')
-  .replace('<script src="app.js">', '<script>window.MODO_ESTATICO = true;</script>\n  <script src="app.js">'));
+fs.mkdirSync(SAIDA, { recursive: true });
+const gravar = (nome, dados) => fs.writeFileSync(path.join(SAIDA, nome), JSON.stringify(dados));
 
 gravar('config.json', {
   cidade: config.cidade,
@@ -41,5 +34,4 @@ for (const { id } of postos) {
     historico: repo.historicoDoPosto(id, desde(30)),
   });
 }
-fs.writeFileSync(path.join(SAIDA, '.nojekyll'), '');
-console.log(`Site gerado em _site: ${postos.length} postos.`);
+console.log(`Dados exportados em publicado/api: ${postos.length} postos.`);
