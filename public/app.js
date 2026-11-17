@@ -111,10 +111,32 @@
     setInterval(carregar, 5 * 60 * 1000); // atualiza a cada 5 minutos
   }
 
+  // Dados da nuvem (preço informado pelo posto, destaques, patrocinadores), renovados a cada 5 min
+  let extras = { precos: new Map(), destaques: new Set(), promocoes: new Map(), patrocinios: [] };
+  let extrasEm = 0;
+  async function carregarExtras() {
+    if (!window.Nuvem || Date.now() - extrasEm < 4 * 60 * 1000) return;
+    extras = await Nuvem.extras();
+    extrasEm = Date.now();
+  }
+
+  /** Usa o preço informado pelo próprio posto quando ele é mais recente que o da nota fiscal. */
+  function aplicarPrecoDoPosto(p, combustivel) {
+    const doPosto = extras.precos.get(p.id)?.[combustivel];
+    if (doPosto && (!p.coletado_em || Date.parse(doPosto.informado_em) >= Date.parse(p.coletado_em))) {
+      return { ...p, preco: doPosto.valor, valor: doPosto.valor, coletado_em: doPosto.informado_em, fonte: 'posto' };
+    }
+    return p;
+  }
+
   async function carregar() {
     try {
-      const d = await api('/api/postos?combustivel=' + estado.combustivel);
-      estado.postos = d.postos;
+      const [d] = await Promise.all([api('/api/postos?combustivel=' + estado.combustivel), carregarExtras()]);
+      estado.postos = d.postos.map((p) => ({
+        ...aplicarPrecoDoPosto(p, estado.combustivel),
+        destaque: extras.destaques.has(p.id),
+        promocao: extras.destaques.has(p.id) ? extras.promocoes.get(p.id) : null,
+      }));
       estado.resumo = d.resumo;
       estado.status = d.status;
       desenhar();
@@ -203,12 +225,21 @@
     if (!comPreco) {
       ol.innerHTML = `<li class="vazio">Nenhum preço recente de ${esc(NOMES[estado.combustivel])} na cidade.</li>`;
     }
-    ol.innerHTML = (comPreco ? '' : ol.innerHTML) + lista.map((p) => {
+    // Postos com destaque pago: cartão "Patrocinado" no topo (a ordem da lista abaixo não muda)
+    const patrocinados = lista.filter((p) => p.destaque).map((p) => `
+      <li class="item patrocinado" tabindex="0" data-id="${p.id}">
+        ${p.preco ? `<div class="preco ${p.faixa}">${numero(p.preco)}<small>${haQuanto(p.coletado_em)}</small></div>` : '<div class="preco sem">—</div>'}
+        <div><div class="nome">${esc(p.nome)}</div>
+          <div class="sub"><span class="selo destaque">Patrocinado</span>${p.promocao ? esc(p.promocao) : esc(p.bairro || '')}</div></div>
+        <div class="dist">${fmtKm(p.dist)}</div>
+      </li>`).join('');
+    ol.innerHTML = patrocinados + (comPreco ? '' : ol.innerHTML) + lista.map((p) => {
       const precoHtml = p.preco
         ? `<div class="preco ${p.faixa}">${numero(p.preco)}<small>${haQuanto(p.coletado_em)}</small></div>`
         : '<div class="preco sem">sem preço</div>';
       const selos = [
         p.top ? '<span class="selo top">Mais barato</span>' : '',
+        p.fonte === 'posto' ? '<span class="selo confirmado">✓ Confirmado pelo posto</span>' : '',
         p.preco && velho(p.coletado_em) ? '<span class="selo velho">Desatualizado</span>' : '',
         p.bandeira ? `<span class="selo">${esc(p.bandeira)}</span>` : '',
       ].join('');
@@ -226,12 +257,12 @@
     camadaPostos.clearLayers();
     estado.marcadores.clear();
     for (const p of lista) {
-      const classe = ['pino', p.faixa, p.top ? 'top' : '', estado.ativo === p.id ? 'ativo' : ''].join(' ');
-      const texto = p.preco ? numero(p.preco) : '—';
+      const classe = ['pino', p.faixa, p.top ? 'top' : '', p.destaque ? 'destaque' : '', estado.ativo === p.id ? 'ativo' : ''].join(' ');
+      const texto = (p.destaque ? '★ ' : '') + (p.preco ? numero(p.preco) : '—');
       const m = L.marker([p.lat, p.lng], {
         icon: L.divIcon({ className: '', html: `<div class="${classe}">${texto}</div>`, iconSize: [0, 0] }),
         title: p.nome,
-        zIndexOffset: p.top ? 1000 : p.preco ? 500 : 0,
+        zIndexOffset: p.destaque ? 1500 : p.top ? 1000 : p.preco ? 500 : 0,
         keyboard: true,
       });
       m.on('click', () => abrirDetalhe(p.id));
@@ -248,8 +279,30 @@
         ? `Última coleta ${haQuanto(mp.ultima_execucao)}.`
         : `Última coleta falhou ${haQuanto(mp.ultima_execucao)} — mostrando os últimos preços conhecidos.`;
     }
-    $('#rodape').innerHTML = `Dados: <strong>Nota Paraná / Menor Preço</strong> (preços das notas fiscais eletrônicas) e
-      informações de motoristas. ${st}<br>Protótipo sem fins comerciais — confira o preço na bomba.`;
+    const zap = window.AJUSTES?.whatsappContato;
+    const anuncie = zap
+      ? ` · <a target="_blank" rel="noopener" href="https://wa.me/${zap}?text=${encodeURIComponent('Olá! Quero anunciar no Combustível Barato.')}">Anuncie aqui</a>`
+      : '';
+    $('#rodape').innerHTML = `Dados: <strong>Nota Paraná / Menor Preço</strong> (preços das notas fiscais eletrônicas),
+      postos e motoristas. ${st} Confira o preço na bomba.<br>
+      <a href="painel.html">É dono de posto? Atualize seus preços</a>${anuncie}<br>
+      <a href="termos.html">Termos de uso</a> · <a href="privacidade.html">Privacidade</a>`;
+    desenharPatrocinio();
+  }
+
+  function desenharPatrocinio() {
+    const el = $('#patrocinio');
+    const lista = extras.patrocinios;
+    if (!lista.length) {
+      el.hidden = true;
+      return;
+    }
+    const p = lista[Math.floor(Date.now() / 300000) % lista.length]; // alterna a cada 5 min
+    el.hidden = false;
+    const corpo = `<span class="selo">Patrocínio</span><strong>${esc(p.nome)}</strong> ${esc(p.texto)}`;
+    el.innerHTML = p.link && /^https?:\/\//.test(p.link)
+      ? `<a target="_blank" rel="noopener sponsored" href="${esc(p.link)}">${corpo}</a>`
+      : corpo;
   }
 
   // ---------- detalhe do posto ----------
@@ -263,7 +316,16 @@
       const d = await api('/api/postos/' + id);
       const p = d.posto;
       const ordemComb = Object.keys(NOMES);
-      const precos = d.precos.sort((a, b) => ordemComb.indexOf(a.combustivel) - ordemComb.indexOf(b.combustivel));
+      // junta os preços informados pelo posto (quando mais recentes)
+      const porComb = new Map(d.precos.map((x) => [x.combustivel, x]));
+      for (const [comb, x] of Object.entries(extras.precos.get(p.id) || {})) {
+        const atual = porComb.get(comb);
+        if (!atual || Date.parse(x.informado_em) >= Date.parse(atual.coletado_em)) {
+          porComb.set(comb, { combustivel: comb, valor: x.valor, coletado_em: x.informado_em, fonte: 'posto' });
+        }
+      }
+      const promocao = extras.destaques.has(p.id) ? extras.promocoes.get(p.id) : null;
+      const precos = [...porComb.values()].sort((a, b) => ordemComb.indexOf(a.combustivel) - ordemComb.indexOf(b.combustivel));
       const linhas = precos.length
         ? precos.map((x) => `<tr class="${x.combustivel === estado.combustivel ? 'sel' : ''}">
             <td>${esc(NOMES[x.combustivel] || x.combustivel)}</td><td>${reais(x.valor)}</td>
@@ -276,8 +338,9 @@
         <button class="fechar" aria-label="Fechar" data-fechar>×</button>
         <h2 id="detalhe-nome">${esc(p.nome)}</h2>
         <p class="end">${esc([p.bandeira, p.endereco, p.bairro].filter(Boolean).join(' · '))} · ${fmtKm(dist)}</p>
+        ${promocao ? `<p class="promo"><span class="selo destaque">Promoção</span>${esc(promocao)}</p>` : ''}
         <table class="tabela"><tbody>${linhas}</tbody></table>
-        <p class="fonte-txt">Fonte: ${esc(fontes || '—')}. Horário = última venda registrada em nota fiscal.</p>
+        <p class="fonte-txt">Fonte: ${esc(fontes || '—')}. Horário = última venda em nota fiscal ou atualização feita pelo posto.</p>
         ${grafico(d.historico)}
         <div class="botoes">
           <a class="btn primario" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${destino}">Rota no Google Maps</a>
@@ -404,6 +467,24 @@
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
     );
   }
+
+  // Instalação no celular (Android/Chrome mostra o botão; no iPhone: Compartilhar > Adicionar à Tela de Início)
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  let pedidoInstalacao = null;
+  window.addEventListener('beforeinstallprompt', (ev) => {
+    ev.preventDefault();
+    pedidoInstalacao = ev;
+    $('#instalar').hidden = false;
+  });
+  $('#instalar').addEventListener('click', async () => {
+    if (!pedidoInstalacao) return;
+    pedidoInstalacao.prompt();
+    await pedidoInstalacao.userChoice;
+    pedidoInstalacao = null;
+    $('#instalar').hidden = true;
+  });
 
   iniciar().catch((e) => {
     $('#lista').innerHTML = `<li class="vazio">Erro ao iniciar: ${esc(e.message)}</li>`;

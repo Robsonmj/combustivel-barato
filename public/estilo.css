@@ -97,6 +97,22 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .dica strong { color: var(--marca); }
 
+/* Patrocínio, destaque e instalação */
+.patrocinio {
+  border: 1px solid var(--borda); border-radius: var(--raio); padding: 9px 12px; font-size: 13.5px;
+  margin-bottom: 10px; line-height: 1.4; background: var(--fundo);
+}
+.patrocinio a { color: inherit; text-decoration: none; display: block; }
+.patrocinio strong { margin-right: 4px; }
+.instalar { width: 100%; margin-bottom: 10px; }
+.item.patrocinado { background: #fffbeb; border: 1px solid #f5d27a; margin-bottom: 6px; }
+@media (prefers-color-scheme: dark) { .item.patrocinado { background: #2a2414; border-color: #6b5520; } }
+.selo.destaque { background: #f59e0b; border-color: #f59e0b; color: #1f1300; }
+.selo.confirmado { color: var(--marca); border-color: currentColor; background: transparent; }
+.pino.destaque { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35), var(--sombra); }
+.promo { background: #fffbeb; border-radius: 8px; padding: 8px 10px; font-size: 14px; margin: 0 0 10px; }
+@media (prefers-color-scheme: dark) { .promo { background: #2a2414; } }
+
 /* Ordenação */
 .ordem { display: flex; background: var(--fundo); border-radius: 10px; padding: 3px; gap: 3px; }
 .ordem button {

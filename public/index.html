@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#0f766e" />
   <title>Combustível Barato · Toledo</title>
   <link rel="icon" href="icone.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icone-192.png" />
+  <meta name="description" content="Preço de gasolina, etanol e diesel em todos os postos de Toledo-PR, no mapa. Ache o posto mais barato perto de você." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="estilo.css" />
@@ -25,6 +27,8 @@
   <main class="layout">
     <section class="painel" id="painel" aria-label="Lista de postos">
       <button class="alca" id="alca" aria-label="Expandir ou recolher a lista"><span></span></button>
+      <div id="patrocinio" class="patrocinio" hidden></div>
+      <button id="instalar" class="btn instalar" hidden>📲 Instalar o app no celular</button>
       <div id="dica" class="dica" hidden></div>
       <div class="ordem" role="tablist" aria-label="Ordenar postos">
         <button role="tab" data-ordem="preco" aria-selected="true">Mais barato</button>
@@ -53,6 +57,8 @@
   </dialog>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="ajustes.js"></script>
+  <script src="nuvem.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Termos de uso · Combustível Barato</title>
+  <link rel="icon" href="icone.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="estilo.css" />
+  <link rel="stylesheet" href="paginas.css" />
+</head>
+<body class="pagina">
+  <header class="topo">
+    <a class="marca" href="./"><img src="icone.svg" alt="" width="28" height="28" />
+      <div><h1>Combustível Barato</h1><p>Termos de uso</p></div></a>
+  </header>
+  <main class="conteudo">
+    <h2>Termos de uso</h2>
+    <p><em>Versão de 17 de novembro de 2026.</em></p>
+
+    <h3>1. O que é o serviço</h3>
+    <p>O Combustível Barato mostra, em mapa, os preços de combustíveis praticados pelos postos de Toledo-PR, para ajudar o
+      consumidor a encontrar o posto mais barato e mais próximo. O serviço é mantido por Robson Magalhães Jorge.</p>
+
+    <h3>2. De onde vêm os preços</h3>
+    <p>Os preços vêm de três fontes: (a) informações públicas do programa Nota Paraná / Menor Preço, formadas a partir das
+      notas fiscais eletrônicas emitidas pelos postos; (b) preços informados pelos próprios postos, identificados com o selo
+      "Confirmado pelo posto"; e (c) preços informados por motoristas. O horário mostrado é o da última venda registrada ou
+      da última atualização.</p>
+    <p><strong>Os preços são informativos e podem mudar a qualquer momento.</strong> Vale sempre o preço anunciado na bomba.
+      O serviço não se responsabiliza por diferenças entre o preço exibido e o cobrado.</p>
+
+    <h3>3. Conteúdo patrocinado</h3>
+    <p>Postos e empresas podem contratar destaque ou patrocínio. Todo conteúdo pago é identificado como "Patrocinado" ou
+      "Patrocínio". O destaque <strong>não altera</strong> a ordem por preço, distância ou custo-benefício nem os preços exibidos.</p>
+
+    <h3>4. Área do posto</h3>
+    <p>O acesso ao painel é liberado somente após conferência de que a pessoa responde pelo posto. Quem informa preços
+      declara que eles são verdadeiros e vigentes. Preços falsos ou enganosos levam à remoção do acesso, sem prejuízo das
+      medidas cabíveis, inclusive com base no Código de Defesa do Consumidor.</p>
+
+    <h3>5. Uso adequado</h3>
+    <p>É proibido usar o serviço para enviar informações falsas, coletar dados de forma automatizada em grande volume ou
+      prejudicar seu funcionamento.</p>
+
+    <h3>6. Disponibilidade</h3>
+    <p>O serviço é oferecido como está e pode ficar indisponível, ser alterado ou encerrado. As fontes públicas de dados
+      podem deixar de estar disponíveis sem aviso.</p>
+
+    <h3>7. Privacidade</h3>
+    <p>O tratamento de dados pessoais está descrito na <a href="privacidade.html">Política de privacidade</a>.</p>
+
+    <h3>8. Contato</h3>
+    <p>Dúvidas, correções de preço ou pedidos de remoção: <span class="contato-email">pelo painel do posto</span>.</p>
+  </main>
+  <footer class="rodape-pagina"><a href="./">Voltar ao mapa</a></footer>
+  <script src="ajustes.js"></script>
+  <script>
+    const e = (window.AJUSTES || {}).emailContato;
+    if (e) document.querySelectorAll('.contato-email').forEach((s) => { s.innerHTML = ''; const a = document.createElement('a'); a.href = 'mailto:' + e; a.textContent = e; s.appendChild(a); });
+  </script>
+</body>
+</html>
