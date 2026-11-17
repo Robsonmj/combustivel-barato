@@ -9,8 +9,8 @@ window.AJUSTES = {
 
   // WhatsApp para postos e patrocinadores falarem com você (só números, com DDI e DDD, ex.: 5544999999999).
   // Fica visível no app. Deixe vazio para não mostrar.
-  whatsappContato: '',
+  whatsappContato: '5545999213120', // Roy
 
   // E-mail de contato mostrado nos termos de uso e na política de privacidade.
-  emailContato: '',
+  emailContato: 'robsonmj@gmail.com',
 };
