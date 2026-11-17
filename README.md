@@ -3,7 +3,20 @@
 App web que mostra no mapa os postos de Toledo-PR com o preço atual de gasolina, etanol e diesel,
 para achar o posto mais barato e mais perto e traçar a rota.
 
-## Como usar
+## Site publicado
+
+**https://robsonmj.github.io/combustivel-barato/** (abre no celular; "Perto de mim" funciona).
+
+Como o Menor Preço não aceita conexões dos servidores do GitHub (que ficam fora do Brasil),
+a coleta roda **neste PC** e só os preços são enviados ao GitHub:
+
+- `publicar.bat` coleta (se a última coleta tiver mais de 50 min), grava os JSON em `publicado/api`
+  e envia ao GitHub. O GitHub Actions monta o site e publica em 1–2 minutos.
+- Para atualizar de hora em hora, o `publicar.bat` precisa rodar pelo Agendador de Tarefas do Windows
+  com o PC ligado. Com o PC desligado, o site continua no ar com os últimos preços (e mostra há quanto tempo).
+- Registro das execuções: `dados/publicar.log`.
+
+## Como usar no PC
 
 1. Dê dois cliques em **`iniciar.bat`** (precisa do Node.js 22.13 ou mais novo — já instalado neste PC).
 2. O navegador abre em **http://localhost:3000**. Deixe a janela preta aberta enquanto usa o app.
