@@ -23,7 +23,7 @@
       ev.preventDefault();
       const { error } = await sb.auth.signInWithOtp({
         email: new FormData(ev.target).get('email'),
-        options: { emailRedirectTo: location.href.split('#')[0], shouldCreateUser: false },
+        options: { emailRedirectTo: location.href.split('#')[0] },
       });
       $('#msg').className = error ? 'msg erro' : 'msg ok';
       $('#msg').textContent = error ? 'Erro: ' + error.message : 'Link enviado. Confira seu e-mail.';
