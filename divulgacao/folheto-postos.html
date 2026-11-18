@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Combustível Barato para postos</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { width: 210mm; height: 297mm; font-family: "Segoe UI", system-ui, sans-serif; color: #1f2a28; background: #fff;
+    display: flex; flex-direction: column; overflow: hidden; }
+  header { background: linear-gradient(135deg, #0f766e 0%, #115e59 100%); color: #fff; padding: 10mm 16mm 9mm; display: flex; gap: 8mm; align-items: center; }
+  header svg { width: 20mm; height: 20mm; flex: none; }
+  header h1 { margin: 0; font-size: 23pt; letter-spacing: -.5pt; line-height: 1.05; }
+  header p { margin: 2mm 0 0; font-size: 12pt; opacity: .92; }
+  main { flex: 1; padding: 8mm 16mm 0; display: grid; grid-template-columns: 1fr 44mm; gap: 8mm; }
+  h2 { color: #0f766e; font-size: 15pt; margin: 0 0 3mm; }
+  .bloco { margin-bottom: 5.5mm; }
+  p, li { font-size: 10.5pt; line-height: 1.4; margin: 0; }
+  ul { margin: 0; padding-left: 5mm; }
+  li { margin-bottom: 1.2mm; }
+  .cidades { display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 3mm; }
+  .cidades span { background: #e6f2f0; color: #0f5e57; border-radius: 99px; padding: 1.2mm 3.5mm; font-size: 10pt; font-weight: 600; }
+  .planos { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .plano { border: 1.5px solid #cfe3df; border-radius: 4mm; padding: 4.5mm; }
+  .plano.pago { border-color: #0f766e; background: #f2f9f8; }
+  .plano h3 { margin: 0 0 1mm; font-size: 12.5pt; }
+  .plano .tag { font-size: 9.5pt; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: .4pt; }
+  .plano.pago .tag { color: #0f766e; }
+  .plano ul { margin-top: 2mm; }
+  .plano li { font-size: 10pt; }
+  .telas img { width: 100%; height: 72mm; object-fit: cover; object-position: top; border-radius: 3mm; border: 1px solid #d5dedb; display: block; margin-bottom: 4mm; }
+  .telas small { display: block; font-size: 8.5pt; color: #5b6662; margin: -2.5mm 0 4mm; text-align: center; }
+  .contato { margin: 0 16mm; background: #0f766e; color: #fff; border-radius: 4mm; padding: 5mm 7mm; display: flex; justify-content: space-between; align-items: center; gap: 6mm; }
+  .contato strong { font-size: 15pt; display: block; white-space: nowrap; }
+  .contato p { font-size: 10.5pt; opacity: .95; }
+  .contato .link { text-align: right; font-size: 10pt; white-space: nowrap; }
+  footer { padding: 5mm 16mm 9mm; font-size: 8.5pt; color: #6b7672; line-height: 1.4; }
+</style></head>
+<body>
+  <header>
+    <svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#fff"/><path d="M18 50V16a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4v34" fill="none" stroke="#0f766e" stroke-width="4" stroke-linejoin="round"/><rect x="22" y="17" width="14" height="10" rx="2" fill="#0f766e"/><path d="M14 50h30M40 26h4l4 4v14a3 3 0 0 0 6 0V24l-5-5" fill="none" stroke="#0f766e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <h1>Seu posto no mapa de quem vai abastecer</h1>
+      <p>Combustível Barato: o app que mostra o preço de cada posto da cidade.</p>
+    </div>
+  </header>
+
+  <main>
+    <div>
+      <div class="bloco">
+        <h2>O que é</h2>
+        <p>Um app gratuito para motoristas, no celular e no navegador. Ele mostra no mapa o preço da gasolina, do etanol e do diesel em cada posto, com rota até lá pelo Google Maps ou Waze. Os preços vêm das notas fiscais registradas no Nota Paraná / Menor Preço, então <strong>o seu posto provavelmente já aparece</strong>.</p>
+        <div class="cidades"><span>Toledo</span><span>Cascavel</span><span>Foz do Iguaçu</span><span>Guarapuava</span><span>Marechal Cândido Rondon</span></div>
+      </div>
+
+      <div class="bloco">
+        <h2>Como o seu posto pode participar</h2>
+        <div class="planos">
+          <div class="plano">
+            <div class="tag">Gratuito</div>
+            <h3>Preço confirmado</h3>
+            <ul>
+              <li>Você mesmo atualiza os preços pela Área do posto, no site</li>
+              <li>Selo <strong>"Confirmado pelo posto"</strong> ao lado do seu preço</li>
+              <li>Preço novo no app assim que você muda na bomba</li>
+            </ul>
+          </div>
+          <div class="plano pago">
+            <div class="tag">Destaque</div>
+            <h3>Topo da lista</h3>
+            <ul>
+              <li>Seu posto no topo da lista, com o selo "Patrocinado"</li>
+              <li>Pino em destaque no mapa</li>
+              <li>Espaço para a sua promoção (ex.: "Ducha grátis acima de R$ 100")</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <h2>Por que vale a pena</h2>
+        <ul>
+          <li>Quem abre o app está decidindo <strong>agora</strong> onde vai abastecer.</li>
+          <li>Posto com preço bom ganha visibilidade sem gastar nada com o selo gratuito.</li>
+          <li>O destaque não muda a ordem por preço nem os valores mostrados. O motorista confia no app, e por isso o anúncio funciona.</li>
+          <li><strong>Condições especiais de lançamento</strong> para os primeiros postos de cada cidade.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="telas">
+      <img src="../play-store/imagens/1-mapa-gasolina.png" alt="Mapa com os preços">
+      <small>Mapa com o preço de cada posto</small>
+      <img src="../play-store/imagens/4-detalhe-do-posto.png" alt="Detalhe do posto">
+      <small>Tela do posto, com rota até lá</small>
+    </div>
+  </main>
+
+  <div class="contato">
+    <div>
+      <strong>Fale com a gente: (44) 98835-4225</strong>
+      <p>WhatsApp de Robson. Cadastro do posto em poucos minutos.</p>
+    </div>
+    <div class="link">Veja o app:<br><strong style="font-size:10.5pt">robsonmj.github.io/<br>combustivel-barato</strong></div>
+  </div>
+
+  <footer>O Combustível Barato é um app independente, sem vínculo com o Governo do Paraná, a Secretaria da Fazenda ou o programa Nota Paraná. Todo conteúdo pago aparece identificado como "Patrocinado".</footer>
+</body></html>

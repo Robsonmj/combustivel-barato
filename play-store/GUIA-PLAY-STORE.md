@@ -89,16 +89,24 @@ Fica no menu **Política → Conteúdo do app**. Respostas prontas:
 Combustível Barato
 ```
 
-**Descrição breve** (até 80 caracteres):
+**Descrição breve** (até 80 caracteres; esta tem 76):
 ```
-Preço da gasolina, etanol e diesel nos postos de Toledo-PR, no mapa.
+Posto mais barato em Toledo, Cascavel, Foz do Iguaçu, Guarapuava e Marechal.
 ```
 
 **Descrição completa:**
 ```
 Encontre o combustível mais barato perto de você.
 
-O Combustível Barato mostra no mapa o preço da gasolina, etanol, diesel S10 e diesel S500 nos postos de Toledo (PR), com os preços mais recentes de cada posto.
+O Combustível Barato mostra no mapa o preço da gasolina, etanol, diesel S10 e diesel S500 nos postos de cinco cidades do Paraná, com os preços mais recentes de cada posto:
+
+• Toledo
+• Cascavel
+• Foz do Iguaçu
+• Guarapuava
+• Marechal Cândido Rondon
+
+Os distritos e postos de beira de estrada em volta de cada cidade também aparecem. Se o GPS estiver ligado, o app abre direto na sua cidade. Para ver outra, é só tocar no nome da cidade no topo.
 
 • Mapa com o preço de cada posto
 • Lista ordenada por mais barato, mais perto ou custo-benefício (preço + distância até lá)
@@ -111,7 +119,7 @@ De onde vêm os preços
 Os preços vêm das informações públicas do Nota Paraná / Menor Preço (valores registrados nas notas fiscais eletrônicas de venda) e dos próprios postos parceiros, que aparecem com o selo "Confirmado pelo posto". O horário mostrado é o da última venda registrada. Confira sempre o preço na bomba.
 
 É dono de posto?
-Na "Área do posto" você atualiza os preços do seu posto gratuitamente e ganha o selo de preço confirmado. Também é possível anunciar com destaque no app.
+Pelo site do Combustível Barato, na "Área do posto", você atualiza os preços do seu posto gratuitamente e ganha o selo de preço confirmado. Também é possível anunciar com destaque no app.
 
 O Combustível Barato é um app independente, sem vínculo com o Governo do Paraná, a Secretaria da Fazenda ou o programa Nota Paraná.
 ```
@@ -119,7 +127,7 @@ O Combustível Barato é um app independente, sem vínculo com o Governo do Para
 **Imagens:**
 - Ícone do app (512×512): `public/icone-512.png`
 - Gráfico de destaque (1024×500): `play-store/imagens/grafico-destaque-1024x500.png`
-- Capturas de tela do telefone, na ordem: `play-store/imagens/1-...` até `5-...`
+- Capturas de tela do telefone, na ordem: `play-store/imagens/1-...` até `5-outras-cidades.png` (a antiga `5-area-do-posto.png` saiu, porque o app da Play não mostra mais essa área)
 
 **Categoria:** Mapas e navegação. **Tags:** Postos de combustível, Economia.
 **E-mail de contato:** robsonmj@gmail.com. **Site:** https://robsonmj.github.io/combustivel-barato/
@@ -129,7 +137,7 @@ O Combustível Barato é um app independente, sem vínculo com o Governo do Para
 - *Como você recrutou os testadores?* "Amigos, familiares e motoristas de Toledo-PR convidados pessoalmente e pelo WhatsApp."
 - *Como foi o engajamento?* "Os testadores usaram o mapa para comparar preços antes de abastecer e testaram a rota até o posto e a troca de combustível."
 - *Que mudanças você fez com base no retorno?* Descreva o que mudou de fato. Exemplo: "Ajustamos o botão 'Perto de mim' para não cobrir a lista e deixamos mais claro de onde vêm os preços."
-- *Público do app:* "Motoristas de Toledo-PR que querem economizar no combustível."
+- *Público do app:* "Motoristas de Toledo, Cascavel, Foz do Iguaçu, Guarapuava e Marechal Cândido Rondon (PR) que querem economizar no combustível."
 
 ---
 

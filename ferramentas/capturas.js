@@ -68,9 +68,13 @@ async function main() {
   await espera(2500);
   await foto('4-detalhe-do-posto.png');
 
-  await cmd('Page.navigate', { url: SITE + 'painel.html' });
-  await espera(4000);
-  await foto('5-area-do-posto.png');
+  // Outra cidade: o GPS em Cascavel faz o app trocar de cidade sozinho
+  await cmd('Emulation.setGeolocationOverride', { latitude: -24.9555, longitude: -53.4552, accuracy: 30 });
+  await cmd('Page.navigate', { url: SITE });
+  await espera(6000);
+  await js(`const s = document.getElementById('cidade'); s.value = 'Cascavel'; s.dispatchEvent(new Event('change')); 1`);
+  await espera(5000);
+  await foto('5-outras-cidades.png');
 
   // ---- gráfico de destaque 1024x500 ----
   await cmd('Emulation.setDeviceMetricsOverride', { width: 1024, height: 500, deviceScaleFactor: 1, mobile: false });
