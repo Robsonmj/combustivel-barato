@@ -159,6 +159,7 @@
     const c = estado.cidades.find((x) => x.nome === nome) || estado.cidades[0];
     estado.cidade = c;
     $('#cidade').value = c.nome;
+    $('#cidade-nome').textContent = `${c.nome} · ${c.uf}`;
     if (salvar) salvarPreferencia('cidade', c.nome);
     document.title = `Combustível Barato · ${c.nome}`;
     if (!estado.usandoGps) estado.origem = { ...c.centro };
