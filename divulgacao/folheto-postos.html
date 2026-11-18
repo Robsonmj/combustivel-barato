@@ -7,11 +7,11 @@
   html, body { margin: 0; }
   body { width: 210mm; height: 297mm; font-family: "Segoe UI", system-ui, sans-serif; color: #1f2a28; background: #fff;
     display: flex; flex-direction: column; overflow: hidden; }
-  header { background: linear-gradient(135deg, #0f766e 0%, #115e59 100%); color: #fff; padding: 10mm 16mm 9mm; display: flex; gap: 8mm; align-items: center; }
+  header { background: linear-gradient(135deg, #0f766e 0%, #115e59 100%); color: #fff; padding: 8mm 16mm 7mm; display: flex; gap: 8mm; align-items: center; }
   header svg { width: 20mm; height: 20mm; flex: none; }
   header h1 { margin: 0; font-size: 23pt; letter-spacing: -.5pt; line-height: 1.05; }
   header p { margin: 2mm 0 0; font-size: 12pt; opacity: .92; }
-  main { flex: 1; padding: 8mm 16mm 0; display: grid; grid-template-columns: 1fr 44mm; gap: 8mm; }
+  main { flex: 1; padding: 7mm 16mm 0; display: grid; grid-template-columns: 1fr 44mm; gap: 8mm; }
   h2 { color: #0f766e; font-size: 15pt; margin: 0 0 3mm; }
   .bloco { margin-bottom: 5.5mm; }
   p, li { font-size: 10.5pt; line-height: 1.4; margin: 0; }
@@ -26,6 +26,9 @@
   .plano .tag { font-size: 9.5pt; font-weight: 700; color: #15803d; text-transform: uppercase; letter-spacing: .4pt; }
   .plano.pago .tag { color: #0f766e; }
   .plano ul { margin-top: 2mm; }
+  .valor { font-size: 17pt; font-weight: 800; color: #0f766e; margin: 1mm 0 0; }
+  .valor small { font-size: 10pt; font-weight: 600; color: #5b6662; }
+  .lanc { margin-top: 3.5mm; background: #fff7e0; border: 1.5px solid #f2c94c; border-radius: 3mm; padding: 3mm 4mm; font-size: 10.5pt; line-height: 1.4; }
   .plano li { font-size: 10pt; }
   .telas img { width: 100%; height: 72mm; object-fit: cover; object-position: top; border-radius: 3mm; border: 1px solid #d5dedb; display: block; margin-bottom: 4mm; }
   .telas small { display: block; font-size: 8.5pt; color: #5b6662; margin: -2.5mm 0 4mm; text-align: center; }
@@ -33,7 +36,7 @@
   .contato strong { font-size: 15pt; display: block; white-space: nowrap; }
   .contato p { font-size: 10.5pt; opacity: .95; }
   .contato .link { text-align: right; font-size: 10pt; white-space: nowrap; }
-  footer { padding: 5mm 16mm 9mm; font-size: 8.5pt; color: #6b7672; line-height: 1.4; }
+  footer { padding: 4mm 16mm 5mm; font-size: 8.5pt; color: #6b7672; line-height: 1.4; }
 </style></head>
 <body>
   <header>
@@ -48,7 +51,7 @@
     <div>
       <div class="bloco">
         <h2>O que é</h2>
-        <p>Um app gratuito para motoristas, no celular e no navegador. Ele mostra no mapa o preço da gasolina, do etanol e do diesel em cada posto, com rota até lá pelo Google Maps ou Waze. Os preços vêm das notas fiscais registradas no Nota Paraná / Menor Preço, então <strong>o seu posto provavelmente já aparece</strong>.</p>
+        <p>Um app gratuito para motoristas, disponível na Google Play e no navegador. Ele mostra no mapa o preço da gasolina, do etanol e do diesel em cada posto, com rota até lá pelo Google Maps ou Waze. Os preços vêm das notas fiscais registradas no Nota Paraná / Menor Preço, então <strong>o seu posto provavelmente já aparece</strong>.</p>
         <div class="cidades"><span>Toledo</span><span>Cascavel</span><span>Foz do Iguaçu</span><span>Guarapuava</span><span>Marechal Cândido Rondon</span></div>
       </div>
 
@@ -58,6 +61,7 @@
           <div class="plano">
             <div class="tag">Gratuito</div>
             <h3>Preço confirmado</h3>
+            <div class="valor">R$ 0</div>
             <ul>
               <li>Você mesmo atualiza os preços pela Área do posto, no site</li>
               <li>Selo <strong>"Confirmado pelo posto"</strong> ao lado do seu preço</li>
@@ -67,6 +71,7 @@
           <div class="plano pago">
             <div class="tag">Destaque</div>
             <h3>Topo da lista</h3>
+            <div class="valor">R$ 79<small>/mês</small></div>
             <ul>
               <li>Seu posto no topo da lista, com o selo "Patrocinado"</li>
               <li>Pino em destaque no mapa</li>
@@ -74,15 +79,15 @@
             </ul>
           </div>
         </div>
+        <div class="lanc"><strong>Lançamento, para os 5 primeiros postos de cada cidade:</strong> 1º mês de destaque grátis e R$ 49/mês nos 3 meses seguintes.</div>
       </div>
 
       <div class="bloco">
         <h2>Por que vale a pena</h2>
         <ul>
           <li>Quem abre o app está decidindo <strong>agora</strong> onde vai abastecer.</li>
-          <li>Posto com preço bom ganha visibilidade sem gastar nada com o selo gratuito.</li>
           <li>O destaque não muda a ordem por preço nem os valores mostrados. O motorista confia no app, e por isso o anúncio funciona.</li>
-          <li><strong>Condições especiais de lançamento</strong> para os primeiros postos de cada cidade.</li>
+          <li><strong>Sem fidelidade:</strong> cancele quando quiser.</li>
         </ul>
       </div>
     </div>
