@@ -2,6 +2,15 @@
 (function () {
   'use strict';
 
+  // Aberto pelo app da Google Play (TWA)? Lá não mostramos a "Área do posto", que exige login por e-mail:
+  // os donos de posto a usam pelo site, no navegador. Fica guardado na sessão para valer também ao navegar.
+  const APP_PLAY = (() => {
+    try {
+      if (document.referrer.startsWith('android-app://')) sessionStorage.setItem('appPlay', '1');
+      return sessionStorage.getItem('appPlay') === '1';
+    } catch { return document.referrer.startsWith('android-app://'); }
+  })();
+
   const NOMES = {
     gasolina: 'Gasolina',
     gasolina_aditivada: 'Gasolina aditivada',
@@ -317,7 +326,7 @@
     $('#rodape').innerHTML = `Dados: <strong>Nota Paraná / Menor Preço</strong> (preços das notas fiscais eletrônicas),
       postos e motoristas. ${st} Confira o preço na bomba.<br>
       App independente, sem vínculo com o Governo do Paraná ou com a Receita Estadual.<br>
-      <a href="painel.html">É dono de posto? Atualize seus preços</a>${anuncie}<br>
+      ${APP_PLAY ? anuncie.replace(/^ · /, '') : '<a href="painel.html">É dono de posto? Atualize seus preços</a>' + anuncie}<br>
       <a href="termos.html">Termos de uso</a> · <a href="privacidade.html">Privacidade</a>`;
     desenharPatrocinio();
   }

@@ -66,7 +66,7 @@ Fica no menu **Política → Conteúdo do app**. Respostas prontas:
 | Pergunta | Resposta |
 |---|---|
 | Política de privacidade | https://robsonmj.github.io/combustivel-barato/privacidade.html |
-| Acesso ao app | "Todas ou algumas funcionalidades são restritas". Instruções: *"O app principal (mapa e preços) não exige login. Apenas a 'Área do posto' (link no rodapé) exige login por link enviado ao e-mail e aprovação manual, pois é exclusiva para donos de postos verificados. Todas as funções para motoristas podem ser testadas sem login."* |
+| Detalhes do login (antigo "Acesso ao app") | **Não**, nenhuma parte é restrita. No app da Play o link "Área do posto" não aparece; os donos de posto usam a área pelo site, no navegador. |
 | Anúncios | **Sim, o app contém anúncios** (faixa de patrocinadores e postos patrocinados) |
 | Classificação de conteúdo | Categoria "Todos os outros tipos de app". Responda **Não** a tudo: violência, sexo, linguagem, drogas, apostas, compras digitais, interação entre usuários e compartilhamento de localização com outros usuários. Resultado esperado: **Livre (L)** |
 | Público-alvo | **18 anos ou mais**, para evitar as regras de apps para crianças |
@@ -78,12 +78,9 @@ Fica no menu **Política → Conteúdo do app**. Respostas prontas:
 
 ### Segurança dos dados (Data safety)
 
-- **O app coleta ou compartilha dados?** Sim.
+- **O app coleta ou compartilha dados?** **Não**. No app da Play não há login nem formulário; a localização é usada só no aparelho para calcular distâncias e não é enviada a nenhum servidor.
 - **Os dados são criptografados em trânsito?** Sim.
-- **Usuários podem pedir exclusão?** Sim. URL: https://robsonmj.github.io/combustivel-barato/excluir-conta.html
-- **Dados coletados**, todos apenas de **donos de posto**, **não compartilhados**, **opcionais** e usados para **Funcionalidade do app** e **Gerenciamento da conta**:
-  - Informações pessoais: **Endereço de e-mail**, **Nome**, **Número de telefone**.
-- **Localização:** **não declarar**. Ela é usada só no aparelho para calcular a distância e não é enviada a nenhum servidor.
+- O cadastro dos donos de posto acontece só no site, fora do app. Se um dia a "Área do posto" voltar ao app, refaça esta seção declarando e-mail, nome e telefone (só de donos de posto) e a URL https://robsonmj.github.io/combustivel-barato/excluir-conta.html.
 
 ## Passo 6: página da loja (Presença na loja → Página principal)
 
