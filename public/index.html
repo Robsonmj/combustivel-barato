@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f766e" />
-  <title>Combustível Barato · Toledo</title>
+  <title>Combustível Barato</title>
   <link rel="icon" href="icone.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icone-192.png" />
-  <meta name="description" content="Preço de gasolina, etanol e diesel em todos os postos de Toledo-PR, no mapa. Ache o posto mais barato perto de você." />
+  <meta name="description" content="Preço de gasolina, etanol e diesel nos postos de Toledo, Cascavel, Marechal Cândido Rondon, Guarapuava e Foz do Iguaçu, no mapa. Ache o posto mais barato perto de você." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="estilo.css" />
@@ -18,7 +18,7 @@
       <img src="icone.svg" alt="" width="28" height="28" />
       <div>
         <h1>Combustível Barato</h1>
-        <p id="cidade">Toledo · PR</p>
+        <label class="cidade-sel"><span class="sr">Cidade</span><select id="cidade"><option>Toledo</option></select><span aria-hidden="true">▾</span></label>
       </div>
     </div>
     <nav class="chips" id="chips" aria-label="Escolha o combustível"></nav>

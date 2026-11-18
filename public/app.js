@@ -106,7 +106,10 @@
     const u = new URL(url, 'http://x');
     let rpc, corpo;
     const m = u.pathname.match(/^\/api\/postos\/(\d+)$/);
-    if (u.pathname === '/api/postos') { rpc = 'api_postos'; corpo = { comb: u.searchParams.get('combustivel') }; }
+    if (u.pathname === '/api/postos') {
+      rpc = 'api_postos';
+      corpo = { comb: u.searchParams.get('combustivel'), cid: u.searchParams.get('cidade') || null };
+    }
     else if (m) { rpc = 'api_posto'; corpo = { pid: Number(m[1]) }; }
     else return null;
     try {
@@ -140,15 +143,39 @@
   // ---------- carregamento ----------
   async function iniciar() {
     estado.config = await api('/api/config');
-    const c = estado.config.cidade;
-    $('#cidade').textContent = `${c.nome} · ${c.uf}`;
-    document.title = `Combustível Barato · ${c.nome}`;
-    estado.origem = { ...c.centro };
-    mapa.setView([c.centro.lat, c.centro.lng], c.zoom);
+    estado.cidades = estado.config.cidades || [estado.config.cidade];
+    const salva = lerPreferencia('cidade');
+    const sel = $('#cidade');
+    sel.innerHTML = estado.cidades.map((c) => `<option value="${esc(c.nome)}">${esc(c.nome)} · ${esc(c.uf)}</option>`).join('');
+    sel.addEventListener('change', () => trocarCidade(sel.value, true));
     if (!estado.config.combustiveis.includes(estado.combustivel)) estado.combustivel = 'gasolina';
     montarChips();
-    await carregar();
+    trocarCidade(estado.cidades.some((c) => c.nome === salva) ? salva : estado.cidades[0].nome, false);
     setInterval(carregar, 5 * 60 * 1000); // atualiza a cada 5 minutos
+  }
+
+  /** Muda a cidade mostrada: centraliza o mapa e carrega os postos dela. */
+  function trocarCidade(nome, salvar) {
+    const c = estado.cidades.find((x) => x.nome === nome) || estado.cidades[0];
+    estado.cidade = c;
+    $('#cidade').value = c.nome;
+    if (salvar) salvarPreferencia('cidade', c.nome);
+    document.title = `Combustível Barato · ${c.nome}`;
+    if (!estado.usandoGps) estado.origem = { ...c.centro };
+    mapa.setView([c.centro.lat, c.centro.lng], c.zoom);
+    estado.postos = [];
+    $('#lista').innerHTML = '<li class="vazio">Carregando postos…</li>';
+    return carregar();
+  }
+
+  /** Cidade atendida mais próxima de um ponto (até 40 km), ou null. */
+  function cidadeMaisProxima(pt) {
+    let melhor = null;
+    for (const c of estado.cidades) {
+      const d = distanciaKm(pt, c.centro);
+      if (d <= 40 && (!melhor || d < melhor.d)) melhor = { c, d };
+    }
+    return melhor?.c || null;
   }
 
   // Dados da nuvem (preço informado pelo posto, destaques, patrocinadores), renovados a cada 5 min
@@ -171,13 +198,17 @@
 
   async function carregar() {
     try {
-      const [d] = await Promise.all([api('/api/postos?combustivel=' + estado.combustivel), carregarExtras()]);
-      estado.postos = d.postos.map((p) => ({
+      const [d] = await Promise.all([api('/api/postos?combustivel=' + estado.combustivel + '&cidade=' + encodeURIComponent(estado.cidade.nome)), carregarExtras()]);
+      if (d.cidade !== undefined && d.cidade !== estado.cidade.nome) return; // resposta de outra cidade (troca rápida)
+      // reserva (arquivos JSON publicados, só de Toledo): fica só com os postos da cidade escolhida
+      const reserva = d.cidade === undefined;
+      const daCidade = d.postos.filter((p) => (p.cidade || 'Toledo') === estado.cidade.nome);
+      estado.postos = daCidade.map((p) => ({
         ...aplicarPrecoDoPosto(p, estado.combustivel),
         destaque: extras.destaques.has(p.id),
         promocao: extras.destaques.has(p.id) ? extras.promocoes.get(p.id) : null,
       }));
-      estado.resumo = d.resumo;
+      estado.resumo = reserva && estado.cidade.nome !== 'Toledo' ? [] : d.resumo;
       estado.status = d.status;
       desenhar();
     } catch (e) {
@@ -259,11 +290,11 @@
     const ol = $('#lista');
     const comPreco = lista.filter((p) => p.preco).length;
     if (!lista.length) {
-      ol.innerHTML = '<li class="vazio">Nenhum posto cadastrado ainda. A primeira coleta de preços acontece ao iniciar o servidor.</li>';
+      ol.innerHTML = `<li class="vazio">Ainda não há postos de ${esc(estado.cidade.nome)}. A coleta de preços roda a cada hora; volte daqui a pouco.</li>`;
       return;
     }
     if (!comPreco) {
-      ol.innerHTML = `<li class="vazio">Nenhum preço recente de ${esc(NOMES[estado.combustivel])} na cidade.</li>`;
+      ol.innerHTML = `<li class="vazio">Nenhum preço recente de ${esc(NOMES[estado.combustivel])} em ${esc(estado.cidade.nome)}.</li>`;
     }
     // Postos com destaque pago: cartão "Patrocinado" no topo (a ordem da lista abaixo não muda)
     const patrocinados = lista.filter((p) => p.destaque).map((p) => `
@@ -499,6 +530,13 @@
           title: 'Você está aqui',
           zIndexOffset: 2000,
         }).addTo(mapa);
+        const perto = cidadeMaisProxima(estado.origem);
+        if (perto && perto !== estado.cidade) {
+          trocarCidade(perto.nome, true).then(() => {
+            if (centralizar) mapa.setView([estado.origem.lat, estado.origem.lng], 14);
+          });
+          return;
+        }
         if (centralizar) mapa.setView([estado.origem.lat, estado.origem.lng], 14);
         desenhar();
       },

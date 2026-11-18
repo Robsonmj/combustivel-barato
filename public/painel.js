@@ -175,7 +175,7 @@
     const jaPediu = new Set(pedidos.map((p) => p.posto_id));
     const opcoes = postos.filter((p) => !jaPediu.has(p.id))
       .sort((a, b) => a.nome.localeCompare(b.nome))
-      .map((p) => `<option value="${p.id}">${esc(p.nome)}${p.bairro ? ' — ' + esc(p.bairro) : ''}</option>`).join('');
+      .map((p) => `<option value="${p.id}">${esc(p.nome)}${[p.bairro, p.cidade].filter(Boolean).length ? ' — ' + esc([p.bairro, p.cidade].filter(Boolean).join(', ')) : ''}</option>`).join('');
     $('#novo').innerHTML = `
       <form class="form cartao" id="f-pedido">
         <h3>${pedidos.length ? 'Pedir acesso a outro posto' : 'Pedir acesso ao seu posto'}</h3>

@@ -47,12 +47,23 @@
     return vazio;
   }
 
-  /** Lista de todos os postos (id, nome, bairro), da versão publicada ou do servidor local. */
+  /** Lista de todos os postos (id, nome, bairro, cidade): do Supabase, ou dos arquivos publicados / servidor local. */
   async function listaPostos() {
+    const mapear = (d) => d.postos.map((p) => ({ id: p.id, nome: p.nome, bairro: p.bairro, cidade: p.cidade, bandeira: p.bandeira }));
+    if (configurado) {
+      try {
+        const r = await fetch(`${A.supabaseUrl}/rest/v1/rpc/api_postos`, {
+          method: 'POST',
+          headers: { apikey: A.supabaseChave, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ comb: 'gasolina' }),
+        });
+        if (r.ok) return mapear(await r.json());
+      } catch { /* usa a reserva abaixo */ }
+    }
     for (const url of ['api/postos-gasolina.json', '/api/postos?combustivel=gasolina']) {
       try {
         const r = await fetch(url);
-        if (r.ok) return (await r.json()).postos.map((p) => ({ id: p.id, nome: p.nome, bairro: p.bairro, bandeira: p.bandeira }));
+        if (r.ok) return mapear(await r.json());
       } catch { /* tenta a próxima */ }
     }
     return [];

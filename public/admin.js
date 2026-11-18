@@ -39,7 +39,7 @@
 
   const postos = await Nuvem.listaPostos();
   const opcoesPostos = postos.sort((a, b) => a.nome.localeCompare(b.nome))
-    .map((p) => `<option value="${p.id}">${esc(p.nome)}${p.bairro ? ' — ' + esc(p.bairro) : ''}</option>`).join('');
+    .map((p) => `<option value="${p.id}">${esc(p.nome)}${[p.bairro, p.cidade].filter(Boolean).length ? ' — ' + esc([p.bairro, p.cidade].filter(Boolean).join(', ')) : ''}</option>`).join('');
 
   conteudo.innerHTML = '<div id="donos"></div><div id="destaques"></div><div id="patrocinios"></div>';
   await Promise.all([donos(), destaques(), patrocinios()]);
