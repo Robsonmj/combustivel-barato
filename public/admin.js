@@ -3,7 +3,7 @@
   'use strict';
   const $ = (s) => document.querySelector(s);
   const conteudo = $('#conteudo');
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const { esc } = Util;
   const data = (d) => new Date(d + (d.length === 10 ? 'T12:00' : '')).toLocaleDateString('pt-BR');
   const maisDias = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
@@ -41,8 +41,8 @@
   const opcoesPostos = postos.sort((a, b) => a.nome.localeCompare(b.nome))
     .map((p) => `<option value="${p.id}">${esc(p.nome)}${[p.bairro, p.cidade].filter(Boolean).length ? ' — ' + esc([p.bairro, p.cidade].filter(Boolean).join(', ')) : ''}</option>`).join('');
 
-  conteudo.innerHTML = '<div id="donos"></div><div id="destaques"></div><div id="patrocinios"></div>';
-  await Promise.all([donos(), destaques(), patrocinios()]);
+  conteudo.innerHTML = '<div id="donos"></div><div id="destaques"></div><div id="cupons"></div><div id="patrocinios"></div>';
+  await Promise.all([donos(), destaques(), cupons(), patrocinios()]);
 
   // ---------- donos de posto ----------
   async function donos() {
@@ -101,6 +101,45 @@
       if (!confirm('Excluir este destaque?')) return;
       await sb.from('destaques').delete().eq('posto_id', b.dataset.tira);
       destaques();
+    }));
+  }
+
+  // ---------- cupons para assinantes Premium ----------
+  async function cupons() {
+    const { data: lista, error: erro } = await sb.from('cupons').select('*').order('ativo_ate', { ascending: false });
+    if (erro) {
+      $('#cupons').innerHTML = `<div class="cartao"><h3>Cupons Premium</h3><p class="msg erro">Tabela de cupons ainda não criada (rode supabase/premium.sql).</p></div>`;
+      return;
+    }
+    $('#cupons').innerHTML = `<div class="cartao"><h3>Cupons Premium</h3>
+      <p style="font-size:13px;color:var(--texto-2)">Aparecem só para assinantes, na tela do posto e na lista de cupons.</p>
+      ${lista.length ? `<table class="tabela-admin"><thead><tr><th>Cupom</th><th>Válido até</th><th></th></tr></thead><tbody>
+      ${lista.map((c) => `<tr><td>${esc(c.texto)}<br><small>${esc(c.posto_nome)}${c.codigo ? ' · código ' + esc(c.codigo) : ''}</small></td>
+        <td>${data(c.ativo_ate)} ${c.ativo_ate >= Nuvem.hoje() ? '<span class="estado aprovado">ativo</span>' : '<span class="estado recusado">vencido</span>'}</td>
+        <td class="acoes"><button class="btn peq perigo" data-tira="${c.id}">Excluir</button></td></tr>`).join('')}</tbody></table>` : '<p>Nenhum cupom.</p>'}
+      <form class="form" id="f-cupom" style="margin-top:12px">
+        <div class="linha-form">
+          <label>Posto <select name="posto_id" required><option value="">Escolha…</option>${opcoesPostos}</select></label>
+          <label>Válido até <input type="date" name="ativo_ate" required value="${maisDias(30)}" /></label>
+        </div>
+        <label>Desconto (ex.: "R$ 0,10 a menos no litro da gasolina") <input name="texto" required maxlength="120" /></label>
+        <label>Código para mostrar no caixa (opcional) <input name="codigo" maxlength="20" /></label>
+        <button class="btn primario">Adicionar cupom</button>
+      </form></div>`;
+    $('#f-cupom').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = Object.fromEntries(new FormData(ev.target));
+      const posto = postos.find((p) => p.id === Number(f.posto_id));
+      const { error } = await sb.from('cupons').insert({
+        posto_id: Number(f.posto_id), posto_nome: posto?.nome, texto: f.texto, codigo: f.codigo || null, ativo_ate: f.ativo_ate,
+      });
+      if (error) alert(error.message);
+      cupons();
+    });
+    $('#cupons').querySelectorAll('[data-tira]').forEach((b) => b.addEventListener('click', async () => {
+      if (!confirm('Excluir este cupom?')) return;
+      await sb.from('cupons').delete().eq('id', b.dataset.tira);
+      cupons();
     }));
   }
 

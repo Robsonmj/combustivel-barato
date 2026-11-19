@@ -11,14 +11,9 @@
     } catch { return document.referrer.startsWith('android-app://'); }
   })();
 
-  const NOMES = {
-    gasolina: 'Gasolina',
-    gasolina_aditivada: 'Gasolina aditivada',
-    etanol: 'Etanol',
-    diesel: 'Diesel S500',
-    diesel_s10: 'Diesel S10',
-    gnv: 'GNV',
-  };
+  const { NOMES, esc, reais, numero, decimal, fmtKm, haQuanto, distanciaKm, pref } = Util;
+  const lerPreferencia = pref.ler;
+  const salvarPreferencia = pref.salvar;
   const CURTO = { ...NOMES, gasolina_aditivada: 'Aditivada' };
   const FONTES = {
     menor_preco: 'Nota Paraná / Menor Preço',
@@ -26,10 +21,10 @@
     usuario: 'Informado por motorista',
     posto: 'Informado pelo posto',
   };
-  const CONSUMO_KM_L = 10;
-  const LITROS = 40;
-
   const estado = {
+    // carro usado no custo-benefício e na regra etanol × gasolina (o recurso "Meu carro" troca pelos dados do usuário)
+    carro: { kmL: 10, kmLEtanol: 7, litros: 40, proprio: false },
+    semAnuncios: false,
     config: null,
     combustivel: lerPreferencia('combustivel') || 'gasolina',
     ordem: 'preco',
@@ -54,38 +49,9 @@
   let marcadorVoce = null;
 
   // ---------- utilidades ----------
-  function lerPreferencia(k) {
-    try { return localStorage.getItem('pc.' + k); } catch { return null; }
-  }
-  function salvarPreferencia(k, v) {
-    try { localStorage.setItem('pc.' + k, v); } catch { /* sem armazenamento: tudo bem */ }
-  }
-  function esc(s) {
-    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-  const reais = (v) => 'R$ ' + Number(v).toFixed(2).replace('.', ',');
-  const numero = (v) => Number(v).toFixed(2).replace('.', ',');
-  function haQuanto(iso) {
-    const min = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
-    if (min < 1) return 'agora';
-    if (min < 60) return `há ${min} min`;
-    const h = Math.round(min / 60);
-    if (h < 24) return `há ${h} h`;
-    const d = Math.round(h / 24);
-    return d === 1 ? 'há 1 dia' : `há ${d} dias`;
-  }
   function velho(iso) {
     return Date.now() - Date.parse(iso) > (estado.config?.avisoDesatualizadoHoras || 48) * 3600000;
   }
-  function distanciaKm(a, b) {
-    const R = 6371;
-    const rad = (x) => (x * Math.PI) / 180;
-    const dLat = rad(b.lat - a.lat);
-    const dLng = rad(b.lng - a.lng);
-    const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
-    return 2 * R * Math.asin(Math.sqrt(h));
-  }
-  const fmtKm = (km) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1).replace('.', ',')} km`);
 
   // Na versão publicada (GitHub Pages) os preços vêm do Supabase (apiSupabase, abaixo); como reserva,
   // as rotas da API são traduzidas para os arquivos JSON publicados no site.
@@ -101,8 +67,7 @@
   // Preços atualizados direto do Supabase (coleta automática no servidor, supabase/coleta.sql).
   // Se o Supabase não responder, usa os arquivos JSON publicados como reserva.
   async function apiSupabase(url) {
-    const aj = window.AJUSTES || {};
-    if (!aj.supabaseUrl || !aj.supabaseChave) return null;
+    if (!window.Nuvem?.configurado) return null;
     const u = new URL(url, 'http://x');
     let rpc, corpo;
     const m = u.pathname.match(/^\/api\/postos\/(\d+)$/);
@@ -112,20 +77,9 @@
     }
     else if (m) { rpc = 'api_posto'; corpo = { pid: Number(m[1]) }; }
     else return null;
-    try {
-      const r = await fetch(`${aj.supabaseUrl}/rest/v1/rpc/${rpc}`, {
-        method: 'POST',
-        headers: { apikey: aj.supabaseChave, 'Content-Type': 'application/json' },
-        body: JSON.stringify(corpo),
-      });
-      if (!r.ok) return null;
-      const dados = await r.json();
-      if (rpc === 'api_posto' && !dados.posto) throw new Error('Posto não encontrado');
-      return dados;
-    } catch (e) {
-      if (e.message === 'Posto não encontrado') throw e;
-      return null;
-    }
+    const dados = await Nuvem.rpc(rpc, corpo);
+    if (dados && rpc === 'api_posto' && !dados.posto) throw new Error('Posto não encontrado');
+    return dados;
   }
 
   async function api(url, opcoes) {
@@ -206,12 +160,13 @@
       const daCidade = d.postos.filter((p) => (p.cidade || 'Toledo') === estado.cidade.nome);
       estado.postos = daCidade.map((p) => ({
         ...aplicarPrecoDoPosto(p, estado.combustivel),
-        destaque: extras.destaques.has(p.id),
-        promocao: extras.destaques.has(p.id) ? extras.promocoes.get(p.id) : null,
+        destaque: !estado.semAnuncios && extras.destaques.has(p.id),
+        promocao: !estado.semAnuncios && extras.destaques.has(p.id) ? extras.promocoes.get(p.id) : null,
       }));
       estado.resumo = reserva && estado.cidade.nome !== 'Toledo' ? [] : d.resumo;
       estado.status = d.status;
       desenhar();
+      avisar('postos', { postos: estado.postos, resumo: estado.resumo, combustivel: estado.combustivel, cidade: estado.cidade });
     } catch (e) {
       $('#lista').innerHTML = `<li class="vazio">Não foi possível carregar os postos: ${esc(e.message)}</li>`;
     }
@@ -237,7 +192,9 @@
     const lista = estado.postos.map((p) => {
       const dist = distanciaKm(estado.origem, p);
       // custo efetivo por litro = preço + combustível gasto ida e volta, diluído no abastecimento
-      const custo = p.preco ? p.preco * (1 + (2 * dist) / CONSUMO_KM_L / LITROS) : null;
+      const c = estado.carro;
+      const kmL = estado.combustivel === 'etanol' ? c.kmLEtanol : c.kmL;
+      const custo = p.preco ? p.preco * (1 + (2 * dist) / kmL / c.litros) : null;
       return { ...p, dist, custo };
     });
     const comPreco = lista.filter((p) => p.preco).map((p) => p.preco).sort((a, b) => a - b);
@@ -279,12 +236,18 @@
       el.hidden = true;
       return;
     }
+    const c = estado.carro;
+    // Com "Meu carro", o limite é o rendimento real do carro (km/l etanol ÷ km/l gasolina); sem ele, a regra dos 70%.
+    const limite = c.proprio ? c.kmLEtanol / c.kmL : 0.7;
     const pct = Math.round((et / ga) * 100);
-    const compensa = et / ga <= 0.7;
+    const compensa = et / ga <= limite;
     el.hidden = false;
+    const regra = c.proprio
+      ? `No seu carro (${decimal(c.kmLEtanol)} km/l no etanol e ${decimal(c.kmL)} km/l na gasolina), o etanol vale a pena abaixo de ${Math.round(limite * 100)}%.`
+      : 'Regra dos 70%: abaixo de 70%, vale o etanol.';
     el.innerHTML = `<strong>${compensa ? 'Etanol compensa' : 'Gasolina compensa'}</strong> no seu carro flex.
       O etanol mais barato (${reais(et)}) custa <strong>${pct}%</strong> da gasolina mais barata (${reais(ga)}).
-      Regra dos 70%: abaixo de 70%, vale o etanol.`;
+      ${regra}`;
   }
 
   function desenharLista(lista) {
@@ -366,7 +329,7 @@
   function desenharPatrocinio() {
     const el = $('#patrocinio');
     const lista = extras.patrocinios;
-    if (!lista.length) {
+    if (!lista.length || estado.semAnuncios) {
       el.hidden = true;
       return;
     }
@@ -421,6 +384,7 @@
         </div>
         ${estado.config.fontes.usuario ? formInformar(p.id) : ''}`;
       ligarForm(p.id);
+      avisar('detalhe', { posto: p, precos, caixa });
     } catch (e) {
       caixa.innerHTML = `<button class="fechar" aria-label="Fechar" data-fechar>×</button><p>Erro: ${esc(e.message)}</p>`;
     }
@@ -568,6 +532,44 @@
     pedidoInstalacao = null;
     $('#instalar').hidden = true;
   });
+
+  // ---------- ligação com os recursos extras (premium.js, viagem.js) ----------
+  // Os recursos extras só conversam com o app por aqui: recebem avisos e pedem mudanças,
+  // sem mexer no estado interno nem no HTML da lista.
+  const ouvintes = { postos: [], detalhe: [] };
+  function avisar(evento, dados) {
+    for (const fn of ouvintes[evento]) {
+      try { fn(dados); } catch (e) { console.warn('Recurso extra falhou:', e); }
+    }
+  }
+  function textoCusto() {
+    const c = estado.carro;
+    $('#info-custo').textContent = `Custo-benefício soma ao preço o combustível gasto para ir e voltar até o posto
+      (${c.proprio ? 'seu carro' : 'carro'} de ${decimal(c.kmL)} km/l, abastecendo ${c.litros} litros).`;
+  }
+  window.App = {
+    NOMES,
+    mapa,
+    ao(evento, fn) { ouvintes[evento].push(fn); },
+    abrirPosto: abrirDetalhe,
+    cidades: () => estado.cidades || [],
+    cidadeAtual: () => estado.cidade,
+    combustivel: () => estado.combustivel,
+    resumo: () => estado.resumo,
+    origem: () => estado.origem,
+    /** Troca o carro usado nas contas ({ kmL, kmLEtanol, litros }) e redesenha a lista. */
+    usarCarro(c) {
+      estado.carro = c ? { ...c, proprio: true } : { kmL: 10, kmLEtanol: 7, litros: 40, proprio: false };
+      textoCusto();
+      if (estado.postos.length) desenhar();
+    },
+    /** Esconde (ou volta a mostrar) patrocínio e cartões patrocinados. */
+    usarSemAnuncios(sim) {
+      if (estado.semAnuncios === sim) return;
+      estado.semAnuncios = sim;
+      if (estado.cidade) carregar();
+    },
+  };
 
   iniciar().catch((e) => {
     $('#lista').innerHTML = `<li class="vazio">Erro ao iniciar: ${esc(e.message)}</li>`;

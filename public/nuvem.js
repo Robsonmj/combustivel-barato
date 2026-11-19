@@ -22,6 +22,21 @@
 
   const hoje = () => new Date().toISOString().slice(0, 10);
 
+  /** Chama uma função pública do banco (RPC) sem carregar a biblioteca do Supabase. Devolve null se falhar. */
+  async function rpc(nome, corpo) {
+    if (!configurado) return null;
+    try {
+      const r = await fetch(`${A.supabaseUrl}/rest/v1/rpc/${nome}`, {
+        method: 'POST',
+        headers: { apikey: A.supabaseChave, 'Content-Type': 'application/json' },
+        body: JSON.stringify(corpo || {}),
+      });
+      return r.ok ? await r.json() : null;
+    } catch {
+      return null;
+    }
+  }
+
   /** Dados extras para o mapa: preços dos postos, destaques ativos, promoções e patrocinadores. */
   async function extras() {
     const vazio = { precos: new Map(), destaques: new Set(), promocoes: new Map(), patrocinios: [] };
@@ -50,16 +65,8 @@
   /** Lista de todos os postos (id, nome, bairro, cidade): do Supabase, ou dos arquivos publicados / servidor local. */
   async function listaPostos() {
     const mapear = (d) => d.postos.map((p) => ({ id: p.id, nome: p.nome, bairro: p.bairro, cidade: p.cidade, bandeira: p.bandeira }));
-    if (configurado) {
-      try {
-        const r = await fetch(`${A.supabaseUrl}/rest/v1/rpc/api_postos`, {
-          method: 'POST',
-          headers: { apikey: A.supabaseChave, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ comb: 'gasolina' }),
-        });
-        if (r.ok) return mapear(await r.json());
-      } catch { /* usa a reserva abaixo */ }
-    }
+    const online = await rpc('api_postos', { comb: 'gasolina' });
+    if (online) return mapear(online);
     for (const url of ['api/postos-gasolina.json', '/api/postos?combustivel=gasolina']) {
       try {
         const r = await fetch(url);
@@ -69,5 +76,5 @@
     return [];
   }
 
-  window.Nuvem = { configurado, cliente, extras, listaPostos, hoje };
+  window.Nuvem = { configurado, cliente, rpc, extras, listaPostos, hoje };
 })();

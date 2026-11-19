@@ -1,13 +1,10 @@
 // Painel do dono do posto: entrar por e-mail, pedir acesso ao posto, atualizar preços e promoção.
 (async function () {
   'use strict';
-  const NOMES = {
-    gasolina: 'Gasolina', gasolina_aditivada: 'Gasolina aditivada', etanol: 'Etanol',
-    diesel: 'Diesel S500', diesel_s10: 'Diesel S10', gnv: 'GNV',
-  };
+  const { NOMES } = Util;
   const $ = (s) => document.querySelector(s);
   const conteudo = $('#conteudo');
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const { esc } = Util;
   const zap = window.AJUSTES?.whatsappContato;
 
   if (!Nuvem.configurado) {

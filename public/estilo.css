@@ -254,3 +254,70 @@ details.informar summary { cursor: pointer; font-weight: 600; font-size: 14px; c
   .layout:has(.painel.aberto) .btn-local { display: none; }
   .detalhe { width: 100vw; max-width: 100vw; margin: auto 0 0; border-radius: 16px 16px 0 0; max-height: 90vh; }
 }
+
+/* ---------- Premium (premium.js e viagem.js) ---------- */
+.btn-premium {
+  margin-left: auto; border: 1.5px solid #d4a017; color: #8a6400; background: #fff8e1;
+  border-radius: 99px; padding: 6px 12px; font-size: 13px; font-weight: 700; white-space: nowrap;
+}
+.btn-premium.ativo { background: #d4a017; color: #fff; }
+@media (prefers-color-scheme: dark) {
+  .btn-premium { background: #2e2610; color: #f5c84c; border-color: #8a6a14; }
+  .btn-premium.ativo { background: #b8890f; color: #fff; }
+}
+.btn.peq { padding: 6px 10px; font-size: 13px; }
+.premium-tela .detalhe-conteudo { max-height: 85vh; overflow-y: auto; }
+.premium-tela h2 { margin-bottom: 12px; }
+.assinatura { background: var(--marca-suave); border-radius: var(--raio); padding: 12px 14px; font-size: 14px; line-height: 1.45; margin-bottom: 12px; }
+.assinatura p { margin: 0 0 10px; }
+.assinatura .btn { width: 100%; justify-content: center; }
+.assinatura small { display: block; color: var(--texto-2); margin-top: 8px; font-size: 12px; }
+.recurso { border: 1px solid var(--borda); border-radius: var(--raio); margin-bottom: 8px; }
+.recurso summary { cursor: pointer; padding: 10px 12px; list-style: none; display: grid; gap: 2px; }
+.recurso summary::-webkit-details-marker { display: none; }
+.recurso summary span { font-size: 12.5px; color: var(--texto-2); }
+.recurso[open] summary { border-bottom: 1px solid var(--borda); }
+.recurso-corpo { padding: 10px 12px 12px; font-size: 14px; line-height: 1.45; }
+.recurso-corpo > p:first-child { margin-top: 0; }
+.recurso.bloqueado summary strong::after { content: " 🔒"; font-size: 12px; }
+.cadeado { margin: 0; color: var(--texto-2); }
+.opcao { display: flex; gap: 8px; align-items: center; }
+.economia-totais { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.economia-totais div { background: var(--fundo); border-radius: 10px; padding: 10px; text-align: center; }
+.economia-totais small { display: block; color: var(--texto-2); font-size: 12px; }
+.economia-totais strong { font-size: 20px; color: var(--barato); }
+.tabela.economia td { font-size: 13px; }
+.tabela.economia td:nth-child(2) { font-size: 13px; font-weight: 500; }
+.eco-mais { color: var(--barato) !important; font-weight: 700; }
+.eco-menos { color: var(--caro) !important; font-weight: 700; }
+.dias { display: grid; gap: 4px; margin: 8px 0; }
+.dia-linha { display: grid; grid-template-columns: 62px 1fr 44px; align-items: center; gap: 6px; font-size: 13px; }
+.dia-linha b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.dia-barra { position: relative; height: 10px; background: var(--fundo); border-radius: 5px; }
+.dia-barra::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--borda); }
+.dia-barra i { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+.dia-barra i.menos { background: var(--barato); }
+.dia-barra i.mais { background: var(--caro); }
+.cupom { display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1.5px dashed #d4a017; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; background: #fffbea; color: #3b3000; }
+.cupom small { display: block; color: #6b5a10; font-size: 12px; margin-top: 2px; }
+.cupom code { font-size: 15px; font-weight: 700; background: #fff; border-radius: 6px; padding: 4px 8px; letter-spacing: 0.5px; }
+#lista-cupons a { text-decoration: none; color: inherit; }
+.premium-detalhe { display: grid; gap: 8px; margin-top: 12px; }
+.premium-detalhe .btn { justify-content: center; }
+.convite-premium { border-color: #d4a017; color: #8a6400; }
+@media (prefers-color-scheme: dark) { .convite-premium { color: #f5c84c; } }
+.abasteci summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 6px 0; }
+.alertas { padding-left: 18px; margin: 10px 0; }
+.alertas li { margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.aviso-preco {
+  position: fixed; left: 50%; transform: translateX(-50%); top: 12px; z-index: 3000; cursor: pointer;
+  width: min(420px, calc(100vw - 24px)); background: var(--superficie); color: var(--texto);
+  border-left: 5px solid var(--barato); border-radius: 12px; box-shadow: var(--sombra); padding: 12px 40px 12px 14px;
+  display: grid; gap: 2px; font-size: 14px;
+}
+.aviso-preco button { position: absolute; top: 6px; right: 8px; border: 0; background: transparent; font-size: 20px; }
+.lista.viagem { margin: 10px 0; padding: 0; }
+@media (max-width: 760px) {
+  .chips { order: 3; }
+  .btn-premium { padding: 5px 10px; font-size: 12.5px; }
+}
