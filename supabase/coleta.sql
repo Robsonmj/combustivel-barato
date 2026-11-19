@@ -1,7 +1,7 @@
 -- Coleta automática do Menor Preço DENTRO do Supabase (servidor em São Paulo), sem depender do PC.
 -- Como funciona: o pg_cron chama mp_passo() a cada minuto. Cada chamada faz no máximo UMA consulta
 -- ao Menor Preço (pausa de ~1 min entre consultas) e um ciclo completo roda de hora em hora.
--- Cidades: Toledo, Cascavel, Marechal Cândido Rondon, Guarapuava e Foz do Iguaçu. A API aceita raio de
+-- Cidades: Toledo, Cascavel, Marechal Cândido Rondon, Guarapuava, Foz do Iguaçu e Umuarama. A API aceita raio de
 -- no máximo 15 km, então cada cidade tem o ponto central (todo ciclo) e pontos em volta, a ~20 km,
 -- para pegar os distritos (a cada 3 ciclos, para manter o volume baixo).
 -- Mesmas regras do coletor do PC: baixo volume, User-Agent identificado, nada de contornar bloqueios:
@@ -84,7 +84,7 @@ create or replace function mp_cfg() returns jsonb language sql immutable as $$
     'base', 'https://menorpreco.notaparana.pr.gov.br/api/v1',
     'raio', 15,                  -- máximo aceito pela API
     -- só entram postos destes municípios (como vêm no Menor Preço, sem acento)
-    'municipios', jsonb_build_array('TOLEDO', 'CASCAVEL', 'MARECHAL CANDIDO RONDON', 'GUARAPUAVA', 'FOZ DO IGUACU'),
+    'municipios', jsonb_build_array('TOLEDO', 'CASCAVEL', 'MARECHAL CANDIDO RONDON', 'GUARAPUAVA', 'FOZ DO IGUACU', 'UMUARAMA'),
     -- pontos de consulta (geohash). anel = ponto em volta da cidade, para os distritos
     'pontos', '[
       {"c":"Toledo","g":"6g9g354"},
@@ -92,6 +92,7 @@ create or replace function mp_cfg() returns jsonb language sql immutable as $$
       {"c":"Marechal Cândido Rondon","g":"6g9s3ct"},
       {"c":"Guarapuava","g":"6g7rscv"},
       {"c":"Foz do Iguaçu","g":"6g3nvfu"},
+      {"c":"Umuarama","g":"6gf0f9t"},
       {"c":"Toledo N","g":"6g9u3p4","anel":true},
       {"c":"Toledo S","g":"6g9f1p4","anel":true},
       {"c":"Toledo L","g":"6g9gq51","anel":true},
@@ -108,7 +109,11 @@ create or replace function mp_cfg() returns jsonb language sql immutable as $$
       {"c":"Guarapuava L","g":"6g7xd9f","anel":true},
       {"c":"Guarapuava O","g":"6g7px3b","anel":true},
       {"c":"Foz do Iguaçu N","g":"6g3pvgs","anel":true},
-      {"c":"Foz do Iguaçu L","g":"6g3qf6v","anel":true}
+      {"c":"Foz do Iguaçu L","g":"6g3qf6v","anel":true},
+      {"c":"Umuarama N","g":"6gf1fdm","anel":true},
+      {"c":"Umuarama S","g":"6gdpf8v","anel":true},
+      {"c":"Umuarama L","g":"6gf0z1s","anel":true},
+      {"c":"Umuarama O","g":"6gcby1w","anel":true}
     ]'::jsonb,
     'anel_cada', 3,
     'max_paginas', 6,
