@@ -1,6 +1,6 @@
 // Combustível Barato Premium: Meu carro, Minha economia, Melhor dia, Cupons, Alertas de preço,
 // Modo viagem (viagem.js) e Sem anúncios.
-// Tudo fica guardado só neste aparelho (localStorage). Conversa com o app apenas pela interface window.App.
+// Tudo fica guardado só neste aparelho (localStorage); a assinatura paga é conferida na Play (cobranca.js). Conversa com o app apenas pela interface window.App.
 (function () {
   'use strict';
   if (!window.App) return;
@@ -10,9 +10,23 @@
   const NOMES_DIA = ['', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'];
 
   // ---------- assinatura ----------
-  // Por enquanto há o teste grátis. A cobrança pela Google Play entra depois e grava "pagoAte".
+  // Teste grátis guardado no aparelho; assinatura paga pela Google Play (cobranca.js) grava "pagoAte".
   const Premium = {
     dados: () => pref.lerJson('premium', {}),
+    pago: () => (Date.parse(Premium.dados().pagoAte || 0) || 0) > Date.now(),
+    /** Guarda o resultado conferido na Play ({ ativo, expira, produto }). */
+    registrarAssinatura(r) {
+      const d = Premium.dados();
+      if (r?.ativo) {
+        // 1 dia de folga para quem fica sem internet perto da renovação
+        const ate = new Date((Date.parse(r.expira) || Date.now() + 31 * 86400000) + 86400000).toISOString();
+        pref.salvarJson('premium', { ...d, pagoAte: ate, produto: r.produto });
+      } else {
+        delete d.pagoAte;
+        delete d.produto;
+        pref.salvarJson('premium', d);
+      }
+    },
     ativo() {
       const d = Premium.dados();
       const fim = Math.max(Date.parse(d.pagoAte || 0) || 0, Premium.fimTeste() || 0);
@@ -75,15 +89,19 @@
 
   function cartaoAssinatura() {
     const d = Premium.dados();
-    if (Premium.ativo() && d.pagoAte) return `<div class="assinatura ok">Você é Premium. Obrigado por apoiar o app!</div>`;
+    if (Premium.pago()) {
+      const gerenciar = `https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(d.produto || '')}&package=io.github.robsonmj.combustivelbarato`;
+      return `<div class="assinatura ok">Você é Premium${d.produto === 'premium_anual' ? ' (plano anual)' : ''}. Obrigado por apoiar o app!
+        <small><a href="${gerenciar}" target="_blank" rel="noopener">Gerenciar ou cancelar a assinatura na Google Play</a></small></div>`;
+    }
     if (Premium.ativo()) {
       const n = Premium.diasRestantes();
       return `<div class="assinatura ok">Teste grátis: falta${n === 1 ? '' : 'm'} <strong>${n} dia${n === 1 ? '' : 's'}</strong>.
-        Aproveite todos os recursos abaixo.</div>`;
+        Aproveite todos os recursos abaixo.<div id="planos"></div></div>`;
     }
     if (d.testeInicio) {
-      return `<div class="assinatura">Seu teste grátis terminou. A assinatura pela Google Play chega em breve:
-        você vai poder continuar com todos os recursos. Seus dados (carro, abastecimentos e alertas) continuam guardados.</div>`;
+      return `<div class="assinatura"><p>Seu teste grátis terminou. Assine para continuar com todos os recursos.
+        Seus dados (carro, abastecimentos e alertas) continuam guardados.</p><div id="planos"></div></div>`;
     }
     return `<div class="assinatura">
       <p>Economize mais com recursos feitos para quem abastece toda semana.</p>
@@ -113,10 +131,45 @@
       ${secao('carro', '🚗 Meu carro', 'Custo real por posto e etanol ou gasolina para o seu carro', corpoCarro)}
       ${secao('anuncios', '🚫 Sem anúncios', 'Sem faixa de patrocínio e sem cartões patrocinados', corpoAnuncios)}`;
     ligarTela(caixa);
+    desenharPlanos();
     if (Premium.ativo()) {
       desenharMelhorDia();
       desenharCupons();
     }
+  }
+
+  /** Botões de assinatura (dentro do app da Play) ou link para a Play Store (no navegador). */
+  async function desenharPlanos() {
+    const el = $('#planos');
+    if (!el || !window.Cobranca) return;
+    if (!(await Cobranca.disponivel())) {
+      el.innerHTML = `<a class="btn primario" href="${Cobranca.LOJA}" target="_blank" rel="noopener">Assinar pelo app na Google Play</a>
+        <small>A assinatura é feita no app Combustível Barato da Google Play.</small>`;
+      return;
+    }
+    const p = await Cobranca.precos();
+    el.innerHTML = `<div class="planos">
+        <button class="btn primario" data-assinar="premium_anual">Anual${p.premium_anual ? ' · ' + p.premium_anual : ''}</button>
+        <button class="btn" data-assinar="premium_mensal">Mensal${p.premium_mensal ? ' · ' + p.premium_mensal : ''}</button>
+      </div>
+      <small>Pagamento pela Google Play. Cancele quando quiser em Play Store › Pagamentos e assinaturas.</small>
+      <p class="msg" id="msg-assinar" role="status"></p>`;
+    el.querySelectorAll('[data-assinar]').forEach((b) => b.addEventListener('click', async () => {
+      const msg = $('#msg-assinar');
+      msg.className = 'msg';
+      msg.textContent = 'Abrindo a Google Play…';
+      try {
+        const r = await Cobranca.assinar(b.dataset.assinar);
+        if (!r) { msg.textContent = ''; return; }
+        if (!r.ativo) throw new Error(r.erro || 'A compra não foi confirmada. Nada foi cobrado.');
+        Premium.registrarAssinatura(r);
+        aplicar();
+        desenharTela();
+      } catch (e) {
+        msg.className = 'msg erro';
+        msg.textContent = e.message;
+      }
+    }));
   }
 
   function ligarTela(caixa) {
@@ -497,6 +550,13 @@
   });
 
   aplicar();
+  // Confere na Play se a assinatura continua ativa (renovou, cancelou ou foi comprada em outro celular)
+  window.Cobranca?.restaurar().then((r) => {
+    if (!r) return;
+    const antes = Premium.pago();
+    Premium.registrarAssinatura(r);
+    if (antes !== Premium.pago()) aplicar();
+  });
   setTimeout(verificarAlertas, 4000);
   setInterval(verificarAlertas, 15 * 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) verificarAlertas(); });

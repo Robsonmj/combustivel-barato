@@ -32,6 +32,8 @@ const SITE = 'https://robsonmj.github.io/combustivel-barato/';
   j.enableSiteSettingsShortcut = true; // precisa ficar true: a androidbrowserhelper 2.7 mexe na ManageDataLauncherActivity ao abrir e o app trava se ela não estiver no manifesto
   j.signingKey = { path: path.join(RAIZ, 'android-chave/upload.jks'), alias: 'upload' };
   j.generatorApp = 'bubblewrap-cli';
+  // Cobrança da Google Play (assinatura Premium): libera a Digital Goods API para o site dentro do app
+  j.features = { ...(j.features || {}), playBilling: { enabled: true } };
   j.minSdkVersion = 24; // exigido pela biblioteca androidbrowserhelper 2.7+ (Android 7.0 ou mais novo)
 
   const twa = new core.TwaManifest(j);
