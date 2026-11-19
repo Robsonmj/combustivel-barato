@@ -272,6 +272,8 @@ details.informar summary { cursor: pointer; font-weight: 600; font-size: 14px; c
 .assinatura p { margin: 0 0 10px; }
 .assinatura .btn { width: 100%; justify-content: center; }
 .planos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.planos .btn { flex-direction: column; gap: 0; }
+.planos .btn small { font-weight: 500; font-size: 11.5px; opacity: .9; margin: 0; color: inherit; }
 #planos > .btn { margin-top: 10px; }
 .assinatura small a { color: inherit; }
 .assinatura small { display: block; color: var(--texto-2); margin-top: 8px; font-size: 12px; }

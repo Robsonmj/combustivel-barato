@@ -149,7 +149,7 @@
     }
     const p = await Cobranca.precos();
     el.innerHTML = `<div class="planos">
-        <button class="btn primario" data-assinar="premium_anual">Anual${p.premium_anual ? ' · ' + p.premium_anual : ''}</button>
+        <button class="btn primario" data-assinar="premium_anual">Anual${p.premium_anual ? ' · ' + p.premium_anual : ''}<br><small>2 meses grátis</small></button>
         <button class="btn" data-assinar="premium_mensal">Mensal${p.premium_mensal ? ' · ' + p.premium_mensal : ''}</button>
       </div>
       <small>Pagamento pela Google Play. Cancele quando quiser em Play Store › Pagamentos e assinaturas.</small>
