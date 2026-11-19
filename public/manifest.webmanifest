@@ -1,7 +1,7 @@
 {
   "name": "Combustível Barato",
   "short_name": "Combustível",
-  "description": "Preço de gasolina, etanol e diesel nos postos de Toledo, Cascavel, Marechal Cândido Rondon, Guarapuava, Foz do Iguaçu e Umuarama (PR), no mapa.",
+  "description": "Preço de gasolina, etanol e diesel nos postos de Toledo, Cascavel, Marechal Cândido Rondon, Guarapuava e Foz do Iguaçu (PR), no mapa.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
