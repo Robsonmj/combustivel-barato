@@ -196,6 +196,10 @@ create or replace function mp_nome_cidade(mun text) returns text language sql im
   select case upper(coalesce(mun, ''))
     when 'MARECHAL CANDIDO RONDON' then 'Marechal Cândido Rondon'
     when 'FOZ DO IGUACU' then 'Foz do Iguaçu'
+    when 'CAMPO MOURAO' then 'Campo Mourão'
+    when 'PARANAVAI' then 'Paranavaí'
+    when 'FRANCISCO BELTRAO' then 'Francisco Beltrão'
+    when 'MARINGA' then 'Maringá'
     else initcap(lower(mun)) end;
 $$;
 
