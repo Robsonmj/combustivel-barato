@@ -49,6 +49,30 @@
   let marcadorVoce = null;
 
   // ---------- utilidades ----------
+  // Bandeira do posto: sigla nas cores da marca (sem usar logotipos, que são marcas registradas)
+  const MARCAS = {
+    petrobras: { s: 'BR', f: '#00843d', t: '#ffd200' },
+    shell: { s: 'S', f: '#ffd500', t: '#dd1d21' },
+    ipiranga: { s: 'Ip', f: '#0047bb', t: '#ffcc00' },
+    ale: { s: 'Ale', f: '#003a8c', t: '#ffffff' },
+    'bandeira branca': { s: 'BB', f: '#ffffff', t: '#475569', borda: '#94a3b8' },
+  };
+  function marca(b) {
+    if (!b) return null;
+    const k = b.toLowerCase();
+    if (MARCAS[k]) return MARCAS[k];
+    let h = 0;
+    for (const c of k) h = (h * 31 + c.charCodeAt(0)) % 360;
+    const pal = b.replace(/[^A-Za-zÀ-ú ]/g, '').split(/\s+/).filter(Boolean);
+    const s = pal.length > 1 ? pal[0][0] + pal[1][0] : (pal[0] || '?').slice(0, 2);
+    return { s: s.toUpperCase(), f: `hsl(${h} 55% 38%)`, t: '#ffffff' };
+  }
+  function bandeiraHtml(b, classe = 'band') {
+    const m = marca(b);
+    if (!m) return '';
+    return `<span class="${classe}" title="${esc(b)}" style="background:${m.f};color:${m.t}${m.borda ? `;border-color:${m.borda}` : ''}">${esc(m.s)}</span>`;
+  }
+
   function velho(iso) {
     return Date.now() - Date.parse(iso) > (estado.config?.avisoDesatualizadoHoras || 48) * 3600000;
   }
@@ -298,7 +322,7 @@
       const extra = estado.ordem === 'custo' && p.custo ? ` · efetivo ${reais(p.custo)}/l` : '';
       return `<li class="item" tabindex="0" data-id="${p.id}">
         ${precoHtml}
-        <div><div class="nome">${esc(p.nome)}</div>
+        <div><div class="nome">${bandeiraHtml(p.bandeira)}${esc(p.nome)}</div>
           <div class="sub">${selos}${esc(p.bairro || '')}${extra}</div></div>
         <div class="dist">${fmtKm(p.dist)}</div>
       </li>`;
@@ -310,7 +334,7 @@
     estado.marcadores.clear();
     for (const p of lista) {
       const classe = ['pino', p.faixa, p.top ? 'top' : '', p.destaque ? 'destaque' : '', estado.ativo === p.id ? 'ativo' : ''].join(' ');
-      const texto = (p.destaque ? '★ ' : '') + (p.preco ? numero(p.preco) : '—');
+      const texto = bandeiraHtml(p.bandeira, 'band mini') + (p.destaque ? '★ ' : '') + (p.preco ? numero(p.preco) : '—');
       const m = L.marker([p.lat, p.lng], {
         icon: L.divIcon({ className: '', html: `<div class="${classe}">${texto}</div>`, iconSize: [0, 0] }),
         title: p.nome,
@@ -388,7 +412,7 @@
       const destino = `${p.lat},${p.lng}`;
       caixa.innerHTML = `
         <button class="fechar" aria-label="Fechar" data-fechar>×</button>
-        <h2 id="detalhe-nome">${esc(p.nome)}</h2>
+        <h2 id="detalhe-nome">${bandeiraHtml(p.bandeira, 'band grande')}${esc(p.nome)}</h2>
         <p class="end">${esc([p.bandeira, p.endereco, p.bairro].filter(Boolean).join(' · '))} · ${fmtKm(dist)}</p>
         ${promocao ? `<p class="promo"><span class="selo destaque">Promoção</span>${esc(promocao)}</p>` : ''}
         <table class="tabela"><tbody>${linhas}</tbody></table>
