@@ -312,7 +312,7 @@ begin
 
   -- 1 verificação por dia com a coleta parada; a cada 6 h com ela ligada (é só mais 1 consulta)
   if st.ultima_verificacao is null
-     or now() - st.ultima_verificacao > case when ativo then interval '6 hours' else interval '23 hours' end then
+     or now() - st.ultima_verificacao > (case when ativo then interval '6 hours' else interval '23 hours' end) then
     update mp_sentinela set pedido_em = now(), pedido_id = net.http_get(
       url := format('%s/produtos?local=%s&tp_comb=1&raio=%s&data=-1', cfg ->> 'base', cfg -> 'pontos' -> 0 ->> 'g', cfg ->> 'raio'),
       headers := jsonb_build_object('User-Agent', cfg ->> 'ua', 'Accept', 'application/json'),
