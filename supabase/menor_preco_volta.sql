@@ -84,7 +84,7 @@ create or replace function mp_cfg() returns jsonb language sql immutable as $$
       {"c":"Capanema","g":"6g3tzx4","anel":true},
       {"c":"Catanduvas","g":"6gd0wkd","anel":true},
       {"c":"Corbélia","g":"6gd4gq9","anel":true},
-      {"c":"Diamante D'Oeste","g":"6g9d0fg","anel":true},
+      {"c":"Diamante D''Oeste","g":"6g9d0fg","anel":true},
       {"c":"Diamante do Sul","g":"6gd990z","anel":true},
       {"c":"Doutor Camargo","g":"6gfcgxr","anel":true},
       {"c":"Francisco Alves","g":"6g9xndr","anel":true},
