@@ -84,7 +84,7 @@ create or replace function mp_cfg() returns jsonb language sql immutable as $$
     'base', 'https://menorpreco.notaparana.pr.gov.br/api/v1',
     'raio', 15,                  -- máximo aceito pela API
     -- só entram postos destes municípios (como vêm no Menor Preço, sem acento)
-    'municipios', jsonb_build_array('TOLEDO', 'CASCAVEL', 'MARECHAL CANDIDO RONDON', 'GUARAPUAVA', 'FOZ DO IGUACU', 'UMUARAMA'),
+    'municipios', jsonb_build_array('TOLEDO', 'CASCAVEL', 'MARECHAL CANDIDO RONDON', 'GUARAPUAVA', 'FOZ DO IGUACU', 'UMUARAMA', 'CIANORTE', 'CAMPO MOURAO', 'PARANAVAI', 'FRANCISCO BELTRAO', 'PATO BRANCO', 'MARINGA', 'LONDRINA', 'PAICANDU', 'DOUTOR CAMARGO', 'TERRA BOA', 'JUSSARA', 'TUNEIRAS DO OESTE', 'TAPEJARA', 'CRUZEIRO DO OESTE', 'PEROBAL', 'CAFEZAL DO SUL', 'IPORA', 'FRANCISCO ALVES', 'TERRA ROXA', 'GUAIRA', 'ALTO PIQUIRI', 'ANAHY', 'ASSIS CHATEAUBRIAND', 'BOA VISTA DA APARECIDA', 'BRAGANEY', 'BRASILANDIA DO SUL', 'CAFELANDIA', 'CAMPO BONITO', 'CANTAGALO', 'CAPANEMA', 'CAPITAO LEONIDAS MARQUES', 'CATANDUVAS', 'CEU AZUL', 'CORBELIA', 'DIAMANTE D''OESTE', 'DIAMANTE DO SUL', 'ENTRE RIOS DO OESTE', 'FORMOSA DO OESTE', 'GUARANIACU', 'IBEMA', 'IGUATU', 'IRACEMA DO OESTE', 'ITAIPULANDIA', 'JESUITAS', 'LINDOESTE', 'MARIPA', 'MATELANDIA', 'MEDIANEIRA', 'MERCEDES', 'MISSAL', 'NOVA AURORA', 'NOVA SANTA ROSA', 'OURO VERDE DO OESTE', 'PALOTINA', 'PATO BRAGADO', 'QUATRO PONTES', 'QUEDAS DO IGUACU', 'RAMILANDIA', 'SANTA HELENA', 'SANTA LUCIA', 'SANTA TEREZA DO OESTE', 'SANTA TEREZINHA DE ITAIPU', 'SAO JOSE DAS PALMEIRAS', 'SAO MIGUEL DO IGUACU', 'SAO PEDRO DO IGUACU', 'SERRANOPOLIS DO IGUACU', 'TRES BARRAS DO PARANA', 'TUPASSI', 'UBIRATA', 'VERA CRUZ DO OESTE'),
     -- pontos de consulta (geohash). anel = ponto em volta da cidade, para os distritos
     'pontos', '[
       {"c":"Toledo","g":"6g9g354"},
@@ -113,12 +113,65 @@ create or replace function mp_cfg() returns jsonb language sql immutable as $$
       {"c":"Umuarama N","g":"6gf1fdm","anel":true},
       {"c":"Umuarama S","g":"6gdpf8v","anel":true},
       {"c":"Umuarama L","g":"6gf0z1s","anel":true},
-      {"c":"Umuarama O","g":"6gcby1w","anel":true}
+      {"c":"Umuarama O","g":"6gcby1w","anel":true},
+      {"c":"Maringá","g":"6gg4f0r"},
+      {"c":"Londrina","g":"6gge7te"},
+      {"c":"Cianorte","g":"6gf96un"},
+      {"c":"Campo Mourão","g":"6gdz0ne"},
+      {"c":"Paranavaí","g":"6gfswps"},
+      {"c":"Francisco Beltrão","g":"6g678ez"},
+      {"c":"Pato Branco","g":"6g6dc3n"},
+      {"c":"Medianeira","g":"6g981h9"},
+      {"c":"Palotina","g":"6g9tygs"},
+      {"c":"Assis Chateaubriand","g":"6g9vjut"},
+      {"c":"Guaíra","g":"6g9qvr7"},
+      {"c":"Iguatu","g":"6gd5rur","anel":true},
+      {"c":"Jesuítas","g":"6gdj31t","anel":true},
+      {"c":"Cafelândia","g":"6gd5fww","anel":true},
+      {"c":"Campo Bonito","g":"6gd3d4g","anel":true},
+      {"c":"Capitão Leônidas Marques","g":"6g3zh3c","anel":true},
+      {"c":"Céu Azul","g":"6g98yyy","anel":true},
+      {"c":"Entre Rios do Oeste","g":"6g97mxk","anel":true},
+      {"c":"Itaipulândia","g":"6g92ur7","anel":true},
+      {"c":"Alto Piquiri","g":"6g9zrfs","anel":true},
+      {"c":"Boa Vista da Aparecida","g":"6g6p2dv","anel":true},
+      {"c":"Brasilândia do Sul","g":"6g9ymff","anel":true},
+      {"c":"Cafezal do Sul","g":"6gcbn31","anel":true},
+      {"c":"Cantagalo","g":"6g6ztu7","anel":true},
+      {"c":"Capanema","g":"6g3tzx4","anel":true},
+      {"c":"Catanduvas","g":"6gd0wkd","anel":true},
+      {"c":"Corbélia","g":"6gd4gq9","anel":true},
+      {"c":"Diamante D'Oeste","g":"6g9d0fg","anel":true},
+      {"c":"Diamante do Sul","g":"6gd990z","anel":true},
+      {"c":"Doutor Camargo","g":"6gfcgxr","anel":true},
+      {"c":"Francisco Alves","g":"6g9xndr","anel":true},
+      {"c":"Guaraniaçu","g":"6gd3jjp","anel":true},
+      {"c":"Iporã","g":"6g9z3y1","anel":true},
+      {"c":"Jussara","g":"6gf9w5c","anel":true},
+      {"c":"Lindoeste","g":"6g9bkbs","anel":true},
+      {"c":"Maripá","g":"6g9tnfw","anel":true},
+      {"c":"Matelândia","g":"6g987ub","anel":true},
+      {"c":"Mercedes","g":"6g9kzky","anel":true},
+      {"c":"Nova Santa Rosa","g":"6g9su1x","anel":true},
+      {"c":"Paiçandu","g":"6gffx9e","anel":true},
+      {"c":"Quedas do Iguaçu","g":"6g6rhp4","anel":true},
+      {"c":"Ramilândia","g":"6g994e0","anel":true},
+      {"c":"Santa Helena","g":"6g96s5p","anel":true},
+      {"c":"Santa Tereza do Oeste","g":"6g9ckp3","anel":true},
+      {"c":"São José das Palmeiras","g":"6g9d9yc","anel":true},
+      {"c":"São Miguel do Iguaçu","g":"6g3rv9z","anel":true},
+      {"c":"Tapejara","g":"6gf2uzd","anel":true},
+      {"c":"Terra Boa","g":"6gf8y91","anel":true},
+      {"c":"Terra Roxa","g":"6g9w8bx","anel":true},
+      {"c":"Três Barras do Paraná","g":"6g6pmu0","anel":true},
+      {"c":"Tuneiras do Oeste","g":"6gf2hz1","anel":true},
+      {"c":"Tupãssi","g":"6g9un7c","anel":true},
+      {"c":"Ubiratã","g":"6gdk65x","anel":true}
     ]'::jsonb,
     'anel_cada', 3,
     'max_paginas', 6,
     'intervalo_ciclo_min', 55,
-    'ua', 'PrototipoPrecosCombustivel/0.1 (projeto sem fins comerciais)'
+    'ua', 'CombustivelBarato/1.0 (+https://robsonmj.github.io/combustivel-barato/)'
   );
 $$;
 
@@ -290,7 +343,21 @@ begin
     select * into pos from geohash_decode(it ->> 'local');
     select * into nm from mp_separar_nome(coalesce(nullif(e ->> 'nm_fan', ''), e ->> 'nm_emp'));
 
-    select id into pid from postos where origem = 'menor_preco' and codigo_origem = e ->> 'codigo';
+    select id into pid from postos
+    where (origem = 'menor_preco' and codigo_origem = e ->> 'codigo') or codigo_mp = e ->> 'codigo' limit 1;
+    if pid is null then
+      -- posto que já veio da ANP no mesmo lugar (até 80 m) ou mesma rua e número: usa o mesmo, sem duplicar
+      select p.id into pid from postos p
+      where p.cidade = mp_nome_cidade(e ->> 'mun') and p.origem <> 'menor_preco' and p.codigo_mp is null
+        and ((abs(p.lat - pos.lat) < 0.001 and abs(p.lng - pos.lng) < 0.001
+              and sqrt(power((p.lat - pos.lat) * 111320, 2) + power((p.lng - pos.lng) * 111320 * cos(radians(pos.lat)), 2)) < 80)
+          or (nullif(regexp_replace(coalesce(e ->> 'nr_logr', ''), '[^0-9]', '', 'g'), '') = anp_numero(split_part(p.endereco, ',', 2))
+              and anp_rua_parecida(split_part(p.endereco, ',', 1), e ->> 'nm_logr')))
+      order by power(p.lat - pos.lat, 2) + power(p.lng - pos.lng, 2) limit 1;
+      if pid is not null then
+        update postos set codigo_mp = e ->> 'codigo', bandeira = coalesce(bandeira, nm.bandeira) where id = pid;
+      end if;
+    end if;
     if pid is null then
       insert into postos (id, nome, bandeira, endereco, bairro, cidade, uf, lat, lng, origem, codigo_origem)
       values (nextval('postos_id_seq'), nm.nome, nm.bandeira,
@@ -326,7 +393,7 @@ $$;
 
 -- ---------- um passo da coleta (chamado a cada minuto) ----------
 create or replace function mp_passo() returns text
-language plpgsql security definer set search_path = public, net as $$
+language plpgsql security definer set search_path = public, net, cron as $$
 declare
   est mp_estado; cfg jsonb := mp_cfg(); r record; js jsonb; qtd int; total int; novos int; url text;
 begin
@@ -369,6 +436,13 @@ begin
       return 'formato';
     end if;
 
+    -- proteção da fonte: se a página vier com dados alterados (cidades inexistentes, valores absurdos), pausa a coleta
+    if not mp_pagina_valida(js) then
+      perform cron.unschedule('mp_coleta');
+      perform mp_status(false, 'Coleta pausada: o Menor Preço voltou a devolver dados alterados para consultas automáticas. Uma verificação diária religa quando normalizar.', est.precos_ciclo);
+      update mp_estado set pedido_id = null, ha_proximo = false where id = 1;
+      return 'dados alterados - pausado';
+    end if;
     novos := mp_gravar_pagina(js, est.tp);
     qtd := jsonb_array_length(js -> 'produtos');
     total := nullif(js ->> 'total', '')::int;
