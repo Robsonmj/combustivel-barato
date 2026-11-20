@@ -69,6 +69,12 @@ create or replace function anp_rua_chave(t text) returns text language sql immut
     '[^a-z0-9 ]', ' ', 'g'), '\s+', ' ', 'g'));
 $$;
 
+-- mesma rua mesmo com título a mais ou a menos ("Presidente Tancredo Neves" x "Tancredo Neves")
+create or replace function anp_rua_parecida(a text, b text) returns boolean language sql immutable as $$
+  select x = y or (least(length(x), length(y)) >= 6 and (x like '%' || y or y like '%' || x))
+  from (select anp_rua_chave(a) x, anp_rua_chave(b) y) t;
+$$;
+
 create or replace function anp_numero(t text) returns text language sql immutable as $$
   select nullif(regexp_replace(coalesce(t, ''), '[^0-9]', '', 'g'), '');
 $$;
@@ -117,7 +123,7 @@ $$;
 
 -- grava o conteúdo de um arquivo; devolve quantas linhas das cidades do app
 create or replace function anp_gravar(conteudo text) returns int language plpgsql as $$
-declare l text; f text[]; comb text; v numeric; d date; n int := 0; cnpj text;
+declare l text; f text[]; comb text; v numeric; d date; n int := 0; v_cnpj text;
 begin
   for l in select x from regexp_split_to_table(conteudo, E'\n') x where position(';PR;' in x) > 0 loop
     f := anp_campos(l);
@@ -126,13 +132,13 @@ begin
     comb := anp_combustivel(f[11]);
     v := nullif(replace(trim(f[13]), ',', '.'), '')::numeric;
     d := to_date(trim(f[12]), 'DD/MM/YYYY');
-    cnpj := regexp_replace(f[5], '[^0-9]', '', 'g');
-    continue when comb is null or v is null or v < 1 or v > 20 or d is null or cnpj = '';
+    v_cnpj := regexp_replace(f[5], '[^0-9]', '', 'g');
+    continue when comb is null or v is null or v < 1 or v > 20 or d is null or v_cnpj = '';
     insert into anp_revendas (cnpj, municipio, nome, bandeira, rua, numero, bairro, cep)
-    values (cnpj, upper(trim(f[3])), trim(f[4]), anp_bandeira(f[16]), trim(f[6]), trim(f[7]), trim(f[9]), trim(f[10]))
+    values (v_cnpj, upper(trim(f[3])), trim(f[4]), anp_bandeira(f[16]), trim(f[6]), trim(f[7]), trim(f[9]), trim(f[10]))
     on conflict (cnpj) do update set nome = excluded.nome, bandeira = excluded.bandeira, rua = excluded.rua,
       numero = excluded.numero, bairro = excluded.bairro, cep = excluded.cep, atualizado_em = now();
-    insert into anp_precos (cnpj, combustivel, valor, data) values (cnpj, comb, v, d)
+    insert into anp_precos (cnpj, combustivel, valor, data) values (v_cnpj, comb, v, d)
     on conflict (cnpj, combustivel, data) do update set valor = excluded.valor;
     n := n + 1;
   end loop;
@@ -250,7 +256,7 @@ begin
   where p.cidade = cid
     and anp_numero(rv.numero) is not null
     and anp_numero(split_part(p.endereco, ',', 2)) = anp_numero(rv.numero)
-    and anp_rua_chave(split_part(p.endereco, ',', 1)) = anp_rua_chave(rv.rua)
+    and anp_rua_parecida(split_part(p.endereco, ',', 1), rv.rua)
   limit 1;
   if pid is not null then
     update anp_revendas set posto_id = pid where cnpj = rv.cnpj;
