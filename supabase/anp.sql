@@ -300,7 +300,7 @@ begin
   end if;
 
   -- 4) próximo posto da ANP ainda fora do mapa
-  if exists (select 1 from anp_revendas where posto_id is null and lat is not null) then
+  if exists (select 1 from anp_revendas a where a.posto_id is null and a.lat is not null) then
     return format('%s postos do cadastro ligados', anp_ligar_coordenadas());
   end if;
   -- primeiro os que têm preço da ANP, depois o resto do cadastro
