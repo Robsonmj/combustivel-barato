@@ -82,7 +82,23 @@
     return dados;
   }
 
+  /** Envia o preço informado pelo motorista direto ao Supabase (versão publicada do site). */
+  async function informarSupabase(corpo) {
+    const A = window.AJUSTES || {};
+    const d = JSON.parse(corpo);
+    const r = await fetch(`${A.supabaseUrl}/rest/v1/rpc/informar_preco`, {
+      method: 'POST',
+      headers: { apikey: A.supabaseChave, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pid: Number(d.posto_id), comb: d.combustivel,
+        valor: Number(String(d.valor).replace(',', '.')), chave: d.chave_nfce || null }),
+    });
+    const res = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(res.message || 'Não foi possível enviar agora. Tente de novo.');
+    return res;
+  }
+
   async function api(url, opcoes) {
+    if (window.MODO_ESTATICO && url === '/api/precos' && opcoes?.method === 'POST') return informarSupabase(opcoes.body);
     if (window.MODO_ESTATICO) {
       const online = await apiSupabase(url);
       if (online) return online;

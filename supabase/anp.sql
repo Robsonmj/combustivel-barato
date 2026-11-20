@@ -16,11 +16,7 @@ create or replace function anp_cfg() returns jsonb language sql immutable as $$
       'https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-gasolina-etanol.csv',
       'https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv'),
     -- cidades importadas (como vêm na ANP: maiúsculas, sem acento)
-    'municipios', jsonb_build_array('TOLEDO', 'CASCAVEL', 'MARECHAL CANDIDO RONDON', 'GUARAPUAVA', 'FOZ DO IGUACU', 'UMUARAMA',
-      'CIANORTE', 'CAMPO MOURAO', 'PARANAVAI', 'FRANCISCO BELTRAO', 'PATO BRANCO', 'MARINGA', 'LONDRINA',
-      -- cidades da rota Maringá–Guaíra e Alto Piquiri (a ANP não pesquisa preço nelas; entram pelo cadastro)
-      'PAICANDU', 'DOUTOR CAMARGO', 'TERRA BOA', 'JUSSARA', 'TUNEIRAS DO OESTE', 'TAPEJARA', 'CRUZEIRO DO OESTE',
-      'PEROBAL', 'CAFEZAL DO SUL', 'IPORA', 'FRANCISCO ALVES', 'TERRA ROXA', 'GUAIRA', 'ALTO PIQUIRI'),
+    'municipios', jsonb_build_array('TOLEDO', 'CASCAVEL', 'MARECHAL CANDIDO RONDON', 'GUARAPUAVA', 'FOZ DO IGUACU', 'UMUARAMA', 'CIANORTE', 'CAMPO MOURAO', 'PARANAVAI', 'FRANCISCO BELTRAO', 'PATO BRANCO', 'MARINGA', 'LONDRINA', 'PAICANDU', 'DOUTOR CAMARGO', 'TERRA BOA', 'JUSSARA', 'TUNEIRAS DO OESTE', 'TAPEJARA', 'CRUZEIRO DO OESTE', 'PEROBAL', 'CAFEZAL DO SUL', 'IPORA', 'FRANCISCO ALVES', 'TERRA ROXA', 'GUAIRA', 'ALTO PIQUIRI', 'ANAHY', 'ASSIS CHATEAUBRIAND', 'BOA VISTA DA APARECIDA', 'BRAGANEY', 'BRASILANDIA DO SUL', 'CAFELANDIA', 'CAMPO BONITO', 'CANTAGALO', 'CAPANEMA', 'CAPITAO LEONIDAS MARQUES', 'CATANDUVAS', 'CEU AZUL', 'CORBELIA', 'DIAMANTE D''OESTE', 'DIAMANTE DO SUL', 'ENTRE RIOS DO OESTE', 'FORMOSA DO OESTE', 'GUARANIACU', 'IBEMA', 'IGUATU', 'IRACEMA DO OESTE', 'ITAIPULANDIA', 'JESUITAS', 'LINDOESTE', 'MARIPA', 'MATELANDIA', 'MEDIANEIRA', 'MERCEDES', 'MISSAL', 'NOVA AURORA', 'NOVA SANTA ROSA', 'OURO VERDE DO OESTE', 'PALOTINA', 'PATO BRAGADO', 'QUATRO PONTES', 'QUEDAS DO IGUACU', 'RAMILANDIA', 'SANTA HELENA', 'SANTA LUCIA', 'SANTA TEREZA DO OESTE', 'SANTA TEREZINHA DE ITAIPU', 'SAO JOSE DAS PALMEIRAS', 'SAO MIGUEL DO IGUACU', 'SAO PEDRO DO IGUACU', 'SERRANOPOLIS DO IGUACU', 'TRES BARRAS DO PARANA', 'TUPASSI', 'UBIRATA', 'VERA CRUZ DO OESTE'),
     'intervalo_horas', 24,
     'ua', 'CombustivelBarato/1.0 (+https://robsonmj.github.io/combustivel-barato/)'
   );
