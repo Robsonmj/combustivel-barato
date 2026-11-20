@@ -104,7 +104,8 @@
     sel.addEventListener('change', () => trocarCidade(sel.value, true));
     if (!estado.config.combustiveis.includes(estado.combustivel)) estado.combustivel = 'gasolina';
     montarChips();
-    trocarCidade(estado.cidades.some((c) => c.nome === salva) ? salva : estado.cidades[0].nome, false);
+    const padrao = estado.config.cidade?.nome || estado.cidades[0].nome;
+    trocarCidade(estado.cidades.some((c) => c.nome === salva) ? salva : padrao, false);
     setInterval(carregar, 5 * 60 * 1000); // atualiza a cada 5 minutos
   }
 
