@@ -109,7 +109,8 @@ $$;
 
 create or replace function anp_bandeira(b text) returns text language sql immutable as $$
   select case
-    when u like 'BRANCA%' then 'Bandeira branca'
+    when u like '%BRANCA%' then 'Bandeira branca'
+    when u like 'ATEM%' then 'Atem''s'
     when u like '%IPIRANGA%' then 'Ipiranga'
     when u like '%RAIZEN%' or u like '%SHELL%' then 'Shell'
     when u like '%VIBRA%' or u like '%PETROBRAS%' then 'Petrobras'
@@ -153,6 +154,9 @@ end $$;
 create or replace function anp_publicar() returns int language plpgsql as $$
 declare n int;
 begin
+  -- bandeira oficial do cadastro da ANP vale para o posto ligado a ela
+  update postos p set bandeira = anp_bandeira(r.bandeira) from anp_revendas r
+  where r.posto_id = p.id and r.bandeira is not null and p.bandeira is distinct from anp_bandeira(r.bandeira);
   insert into precos (posto_id, combustivel, valor, coletado_em, fonte, descricao)
   select r.posto_id, p.combustivel, p.valor, (p.data + time '12:00') at time zone 'America/Sao_Paulo', 'anp',
          'ANP – levantamento semanal de preços'
