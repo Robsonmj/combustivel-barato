@@ -53,17 +53,15 @@
 
   // ---------- utilidades ----------
   // Bandeira do posto: sigla nas cores da marca (sem usar logotipos, que são marcas registradas)
-  const MARCAS = {
-    petrobras: { s: 'BR', f: '#00843d', t: '#ffd200' },
-    shell: { s: 'S', f: '#ffd500', t: '#dd1d21' },
-    ipiranga: { s: 'Ip', f: '#0047bb', t: '#ffcc00' },
-    ale: { s: 'Ale', f: '#003a8c', t: '#ffffff' },
-    'bandeira branca': { s: 'BB', f: '#ffffff', t: '#475569', borda: '#94a3b8' },
-  };
+  // Bandeira do posto: logo da distribuidora (bandeiras/*.svg, de arquivos públicos do Wikimedia Commons)
+  // quando houver; bandeira branca = bomba neutra; demais redes = sigla com cor própria.
+  const LOGOS = { petrobras: 'petrobras', shell: 'shell', ipiranga: 'ipiranga' };
+  const BOMBA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3h8a1 1 0 0 1 1 1v7h1a2 2 0 0 1 2 2v4a1 1 0 0 0 2 0V9.4l-2.7-2.7 1.4-1.4 3 3c.2.2.3.4.3.7V17a3 3 0 0 1-6 0v-4h-1v7h1v2H3v-2h1V4a1 1 0 0 1 1-1Zm1 2v5h6V5H6Z"/></svg>';
   function marca(b) {
     if (!b) return null;
     const k = b.toLowerCase();
-    if (MARCAS[k]) return MARCAS[k];
+    if (LOGOS[k]) return { logo: LOGOS[k] };
+    if (k === 'bandeira branca') return { svg: BOMBA };
     let h = 0;
     for (const c of k) h = (h * 31 + c.charCodeAt(0)) % 360;
     const pal = b.replace(/[^A-Za-zÀ-ú ]/g, '').split(/\s+/).filter(Boolean);
@@ -73,7 +71,9 @@
   function bandeiraHtml(b, classe = 'band') {
     const m = marca(b);
     if (!m) return '';
-    return `<span class="${classe}" title="${esc(b)}" style="background:${m.f};color:${m.t}${m.borda ? `;border-color:${m.borda}` : ''}">${esc(m.s)}</span>`;
+    if (m.logo) return `<span class="${classe} logo" title="${esc(b)}"><img src="bandeiras/${m.logo}.svg" alt="${esc(b)}"></span>`;
+    if (m.svg) return `<span class="${classe} branca" title="${esc(b)}">${m.svg}</span>`;
+    return `<span class="${classe}" title="${esc(b)}" style="background:${m.f};color:${m.t}">${esc(m.s)}</span>`;
   }
 
   function velho(iso) {

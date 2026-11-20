@@ -327,7 +327,7 @@ details.informar summary { cursor: pointer; font-weight: 600; font-size: 14px; c
   .btn-premium { padding: 5px 10px; font-size: 12.5px; }
 }
 
-/* Bandeira do posto (sigla nas cores da marca) */
+/* Bandeira do posto (logo da distribuidora, bomba para bandeira branca ou sigla nas cores da marca) */
 .band {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 22px; height: 22px; padding: 0 4px; margin-right: 6px; vertical-align: -4px;
@@ -336,6 +336,14 @@ details.informar summary { cursor: pointer; font-weight: 600; font-size: 14px; c
 }
 .band.mini { min-width: 16px; height: 16px; padding: 0 3px; margin-right: 4px; font-size: 9px; border-radius: 4px; vertical-align: -2px; }
 .band.grande { min-width: 30px; height: 30px; font-size: 13px; border-radius: 8px; vertical-align: -7px; margin-right: 8px; }
+.band.logo { padding: 0; width: 22px; background: #fff; overflow: hidden; }
+.band.mini.logo { width: 16px; }
+.band.grande.logo { width: 30px; }
+.band.logo img { width: 100%; height: 100%; display: block; }
+.band.branca { padding: 0; width: 22px; background: #fff; color: #64748b; border-color: #cbd5e1; }
+.band.mini.branca { width: 16px; }
+.band.grande.branca { width: 30px; }
+.band.branca svg { width: 72%; height: 72%; }
 
 /* apelido do posto (Premium) */
 .detalhe .razao { color: var(--texto-2); font-size: 12.5px; margin: -6px 0 6px; }
