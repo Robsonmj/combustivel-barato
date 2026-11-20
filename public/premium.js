@@ -54,12 +54,14 @@
   const abastecimentos = () => pref.lerJson('abastecimentos', []);
   const alertas = () => pref.lerJson('alertas', []);
   const favoritos = () => pref.lerJson('favoritos', []);
+  const apelidos = () => pref.lerJson('apelidos', {});
   const opcoes = () => pref.lerJson('opcoesPremium', { semAnuncios: true });
 
   /** Aplica no app o que depende da assinatura (carro e anúncios). */
   function aplicar() {
     const ativo = Premium.ativo();
     App.usarCarro(ativo ? carro() : null);
+    App.usarApelidos(ativo ? apelidos() : {});
     App.usarSemAnuncios(ativo && opcoes().semAnuncios !== false);
     const b = $('#btn-premium');
     if (b) b.classList.toggle('ativo', ativo);
@@ -129,6 +131,7 @@
       ${secao('cupons', '🎟️ Cupons dos postos', 'Descontos exclusivos dos postos parceiros', () => '<div id="lista-cupons">Carregando…</div>')}
       ${secao('viagem', '🛣️ Modo viagem', 'Posto mais barato no caminho entre cidades', () => '<button class="btn primario" data-viagem>Planejar viagem</button>')}
       ${secao('carro', '🚗 Meu carro', 'Custo real por posto e etanol ou gasolina para o seu carro', corpoCarro)}
+      ${secao('apelidos', '🏷️ Apelidos dos postos', 'Dê ao posto o nome que todo mundo usa, no lugar da razão social', corpoApelidos)}
       ${secao('anuncios', '🚫 Sem anúncios', 'Sem faixa de patrocínio e sem cartões patrocinados', corpoAnuncios)}`;
     ligarTela(caixa);
     desenharPlanos();
@@ -186,6 +189,14 @@
     ligarCarro(caixa);
     ligarEconomia(caixa);
     ligarAlertas(caixa);
+    caixa.querySelectorAll('[data-apagar-apelido]').forEach((bt) => bt.addEventListener('click', () => {
+      const a = apelidos();
+      delete a[bt.dataset.apagarApelido];
+      pref.salvarJson('apelidos', a);
+      aplicar();
+      desenharTela();
+      abrir('apelidos');
+    }));
     caixa.querySelector('#op-anuncios')?.addEventListener('change', (ev) => {
       pref.salvarJson('opcoesPremium', { ...opcoes(), semAnuncios: ev.target.checked });
       aplicar();
@@ -518,6 +529,43 @@
     return b;
   }
 
+  /** Lista dos apelidos dados, com botão para apagar cada um. */
+  function corpoApelidos() {
+    const a = apelidos();
+    const orig = pref.lerJson('apelidosOrig', {});
+    const ids = Object.keys(a);
+    const itens = ids.length
+      ? `<ul class="apelidos">${ids.map((id) => `<li><span><strong>${esc(a[id])}</strong><small>${esc(orig[id] || '')}</small></span>
+          <button class="btn" data-apagar-apelido="${esc(id)}">Apagar</button></li>`).join('')}</ul>`
+      : '<p class="fonte-txt">Nenhum apelido ainda.</p>';
+    return `${itens}<p class="fonte-txt">Para dar um apelido, toque no posto no mapa ou na lista e use o campo
+      "Apelido do posto". O apelido fica guardado só no seu celular.</p>`;
+  }
+
+  /** Campo "Apelido do posto" no detalhe. */
+  function formApelido(posto) {
+    const f = document.createElement('form');
+    f.className = 'form-apelido';
+    const atual = apelidos()[posto.id] || '';
+    f.innerHTML = `<label for="apelido-posto">🏷️ Apelido do posto</label>
+      <div class="linha"><input id="apelido-posto" maxlength="40" autocomplete="off"
+        placeholder="Ex.: Posto do Trevo" value="${esc(atual)}">
+      <button class="btn" type="submit">Salvar</button></div>
+      <small>Aparece no lugar de "${esc(posto.nome)}". Deixe em branco para voltar ao nome original.</small>`;
+    f.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const texto = f.querySelector('input').value.replace(/\s+/g, ' ').trim().slice(0, 40);
+      const a = apelidos();
+      const orig = pref.lerJson('apelidosOrig', {});
+      if (texto) { a[posto.id] = texto; orig[posto.id] = posto.nome; } else { delete a[posto.id]; delete orig[posto.id]; }
+      pref.salvarJson('apelidos', a);
+      pref.salvarJson('apelidosOrig', orig);
+      App.usarApelidos(a);
+      App.abrirPosto(posto.id);
+    });
+    return f;
+  }
+
   function corpoAnuncios() {
     return `<label class="opcao"><input type="checkbox" id="op-anuncios" ${opcoes().semAnuncios !== false ? 'checked' : ''}>
       Esconder patrocínios e cartões patrocinados</label>
@@ -534,11 +582,12 @@
     if (!Premium.ativo()) {
       const convite = document.createElement('button');
       convite.className = 'btn convite-premium';
-      convite.textContent = '★ Premium: favoritar, alerta de preço, cupons e economia';
+      convite.textContent = '★ Premium: apelidar e favoritar o posto, alerta de preço e cupons';
       convite.addEventListener('click', () => { $('#detalhe').close(); abrir(); });
       extra.appendChild(convite);
       return;
     }
+    extra.appendChild(formApelido(posto));
     extra.appendChild(botaoFavorito(posto, precos));
     extra.appendChild(formAbasteci(posto, precos));
     const cupons = (await buscarCupons()).filter((c) => c.posto_id === posto.id);

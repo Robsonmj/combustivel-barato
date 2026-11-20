@@ -35,7 +35,10 @@
     usandoGps: false,
     marcadores: new Map(),
     ativo: null,
+    apelidos: {}, // { id do posto: apelido } dado pelo usuário Premium (o recurso "Apelidos" preenche)
   };
+  /** Nome mostrado do posto: o apelido do usuário, se houver; senão o nome do cadastro. */
+  const nomeDe = (p) => estado.apelidos[p.id] || p.nome;
 
   const $ = (s) => document.querySelector(s);
   const mapa = L.map('mapa', { zoomControl: true, attributionControl: true });
@@ -305,7 +308,7 @@
     const patrocinados = lista.filter((p) => p.destaque).map((p) => `
       <li class="item patrocinado" tabindex="0" data-id="${p.id}">
         ${p.preco ? `<div class="preco ${p.faixa}">${numero(p.preco)}<small>${haQuanto(p.coletado_em)}</small></div>` : '<div class="preco sem">—</div>'}
-        <div><div class="nome">${esc(p.nome)}</div>
+        <div><div class="nome">${esc(nomeDe(p))}</div>
           <div class="sub"><span class="selo destaque">Patrocinado</span>${p.promocao ? esc(p.promocao) : esc(p.bairro || '')}</div></div>
         <div class="dist">${fmtKm(p.dist)}</div>
       </li>`).join('');
@@ -322,7 +325,7 @@
       const extra = estado.ordem === 'custo' && p.custo ? ` · efetivo ${reais(p.custo)}/l` : '';
       return `<li class="item" tabindex="0" data-id="${p.id}">
         ${precoHtml}
-        <div><div class="nome">${bandeiraHtml(p.bandeira)}${esc(p.nome)}</div>
+        <div><div class="nome">${bandeiraHtml(p.bandeira)}${esc(nomeDe(p))}</div>
           <div class="sub">${selos}${esc(p.bairro || '')}${extra}</div></div>
         <div class="dist">${fmtKm(p.dist)}</div>
       </li>`;
@@ -337,7 +340,7 @@
       const texto = bandeiraHtml(p.bandeira, 'band mini') + (p.destaque ? '★ ' : '') + (p.preco ? numero(p.preco) : '—');
       const m = L.marker([p.lat, p.lng], {
         icon: L.divIcon({ className: '', html: `<div class="${classe}">${texto}</div>`, iconSize: [0, 0] }),
-        title: p.nome,
+        title: nomeDe(p),
         zIndexOffset: p.destaque ? 1500 : p.top ? 1000 : p.preco ? 500 : 0,
         keyboard: true,
       });
@@ -412,7 +415,8 @@
       const destino = `${p.lat},${p.lng}`;
       caixa.innerHTML = `
         <button class="fechar" aria-label="Fechar" data-fechar>×</button>
-        <h2 id="detalhe-nome">${bandeiraHtml(p.bandeira, 'band grande')}${esc(p.nome)}</h2>
+        <h2 id="detalhe-nome">${bandeiraHtml(p.bandeira, 'band grande')}${esc(nomeDe(p))}</h2>
+        ${estado.apelidos[p.id] ? `<p class="razao">${esc(p.nome)}</p>` : ''}
         <p class="end">${esc([p.bandeira, p.endereco, p.bairro].filter(Boolean).join(' · '))} · ${fmtKm(dist)}</p>
         ${promocao ? `<p class="promo"><span class="selo destaque">Promoção</span>${esc(promocao)}</p>` : ''}
         <table class="tabela"><tbody>${linhas}</tbody></table>
@@ -601,6 +605,11 @@
     usarCarro(c) {
       estado.carro = c ? { ...c, proprio: true } : { kmL: 10, kmLEtanol: 7, litros: 40, proprio: false };
       textoCusto();
+      if (estado.postos.length) desenhar();
+    },
+    /** Troca os apelidos dos postos ({ id: apelido }) e redesenha lista e mapa. */
+    usarApelidos(a) {
+      estado.apelidos = a || {};
       if (estado.postos.length) desenhar();
     },
     /** Esconde (ou volta a mostrar) patrocínio e cartões patrocinados. */
