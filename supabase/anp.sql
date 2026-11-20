@@ -330,14 +330,14 @@ end $$;
 revoke all on function anp_passo(), anp_gravar(text), anp_publicar(), anp_status(boolean, text, int), anp_ligar_coordenadas(),
   anp_posto_perto(text, double precision, double precision, text, text) from public, anon, authenticated;
 
--- ---------- leitura pelo app: preço da ANP vale por 21 dias, o do Menor Preço por 7 ----------
+-- ---------- leitura pelo app: preço da ANP vale por 21 dias, o do Menor Preço por 14 (com selo Desatualizado), os demais por 7 ----------
 create or replace function api_postos(comb text, cid text default null) returns jsonb
 language sql stable security definer set search_path = public as $$
   with daqui as (
     select * from postos where cid is null or cidade = cid
   ), validos as (
     select * from precos
-    where coletado_em >= now() - case when fonte = 'anp' then interval '21 days' else interval '7 days' end
+    where coletado_em >= now() - case fonte when 'anp' then interval '21 days' when 'menor_preco' then interval '14 days' else interval '7 days' end
       and posto_id in (select id from daqui)
   ), ultimos as (
     select distinct on (posto_id) posto_id, valor, coletado_em, fonte
@@ -367,7 +367,7 @@ language sql stable security definer set search_path = public as $$
     'precos', coalesce((select jsonb_agg(to_jsonb(x)) from (
         select distinct on (combustivel) combustivel, valor, coletado_em, fonte, descricao
         from precos where posto_id = pid
-          and coletado_em >= now() - case when fonte = 'anp' then interval '21 days' else interval '7 days' end
+          and coletado_em >= now() - case fonte when 'anp' then interval '21 days' when 'menor_preco' then interval '14 days' else interval '7 days' end
         order by combustivel, coletado_em desc, valor asc) x), '[]'::jsonb),
     'historico', coalesce((select jsonb_agg(to_jsonb(h) order by h.dia) from (
         select combustivel, to_char(coletado_em at time zone 'America/Sao_Paulo', 'YYYY-MM-DD') dia, min(valor) valor
