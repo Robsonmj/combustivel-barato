@@ -308,18 +308,17 @@
 
   function desenharRodape() {
     const mp = estado.status.find((s) => s.fonte === 'menor_preco');
+    const anp = estado.status.find((s) => s.fonte === 'anp' && s.sucesso);
     let st = '';
-    if (mp) {
-      st = mp.sucesso
-        ? `Última coleta ${haQuanto(mp.ultima_execucao)}.`
-        : `Última coleta falhou ${haQuanto(mp.ultima_execucao)} — mostrando os últimos preços conhecidos.`;
-    }
+    if (mp?.sucesso) st = `Última coleta ${haQuanto(mp.ultima_execucao)}.`;
+    else if (anp) st = `Nota Paraná em pausa; preços da ANP conferidos ${haQuanto(anp.ultima_execucao)}.`;
+    else if (mp) st = `Última coleta falhou ${haQuanto(mp.ultima_execucao)} — mostrando os últimos preços conhecidos.`;
     const zap = window.AJUSTES?.whatsappContato;
     const anuncie = zap
       ? ` · <a target="_blank" rel="noopener" href="https://wa.me/${zap}?text=${encodeURIComponent('Olá! Quero anunciar no Combustível Barato.')}">Anuncie aqui</a>`
       : '';
     $('#rodape').innerHTML = `Dados: <strong>Nota Paraná / Menor Preço</strong> (preços das notas fiscais eletrônicas),
-      postos e motoristas. ${st} Confira o preço na bomba.<br>
+      <strong>ANP</strong> (levantamento semanal), postos e motoristas. ${st} Confira o preço na bomba.<br>
       App independente, sem vínculo com o Governo do Paraná ou com a Receita Estadual.<br>
       ${APP_PLAY ? anuncie.replace(/^ · /, '') : '<a href="painel.html">É dono de posto? Atualize seus preços</a>' + anuncie}<br>
       <a href="termos.html">Termos de uso</a> · <a href="privacidade.html">Privacidade</a>`;
@@ -376,7 +375,7 @@
         <p class="end">${esc([p.bandeira, p.endereco, p.bairro].filter(Boolean).join(' · '))} · ${fmtKm(dist)}</p>
         ${promocao ? `<p class="promo"><span class="selo destaque">Promoção</span>${esc(promocao)}</p>` : ''}
         <table class="tabela"><tbody>${linhas}</tbody></table>
-        <p class="fonte-txt">Fonte: ${esc(fontes || '—')}. Horário = última venda em nota fiscal ou atualização feita pelo posto.</p>
+        <p class="fonte-txt">Fonte: ${esc(fontes || '—')}. Horário = última venda em nota fiscal, atualização feita pelo posto ou dia da pesquisa da ANP.</p>
         ${grafico(d.historico)}
         <div class="botoes">
           <a class="btn primario" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${destino}">Rota no Google Maps</a>
