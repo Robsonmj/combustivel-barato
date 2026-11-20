@@ -17,7 +17,10 @@ create or replace function anp_cfg() returns jsonb language sql immutable as $$
       'https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/qus/ultimas-4-semanas-diesel-gnv.csv'),
     -- cidades importadas (como vêm na ANP: maiúsculas, sem acento)
     'municipios', jsonb_build_array('TOLEDO', 'CASCAVEL', 'MARECHAL CANDIDO RONDON', 'GUARAPUAVA', 'FOZ DO IGUACU', 'UMUARAMA',
-      'CIANORTE', 'CAMPO MOURAO', 'PARANAVAI', 'FRANCISCO BELTRAO', 'PATO BRANCO', 'MARINGA', 'LONDRINA'),
+      'CIANORTE', 'CAMPO MOURAO', 'PARANAVAI', 'FRANCISCO BELTRAO', 'PATO BRANCO', 'MARINGA', 'LONDRINA',
+      -- cidades da rota Maringá–Guaíra e Alto Piquiri (a ANP não pesquisa preço nelas; entram pelo cadastro)
+      'PAICANDU', 'DOUTOR CAMARGO', 'TERRA BOA', 'JUSSARA', 'TUNEIRAS DO OESTE', 'TAPEJARA', 'CRUZEIRO DO OESTE',
+      'PEROBAL', 'CAFEZAL DO SUL', 'IPORA', 'FRANCISCO ALVES', 'TERRA ROXA', 'GUAIRA', 'ALTO PIQUIRI'),
     'intervalo_horas', 24,
     'ua', 'CombustivelBarato/1.0 (+https://robsonmj.github.io/combustivel-barato/)'
   );
@@ -54,6 +57,10 @@ create table if not exists anp_estado (
   linhas        int
 );
 insert into anp_estado (id) values (1) on conflict do nothing;
+-- coordenada do cadastro da ANP (API Revendedores) ou do OpenStreetMap, quando houver
+alter table anp_revendas add column if not exists lat double precision;
+alter table anp_revendas add column if not exists lng double precision;
+alter table anp_revendas add column if not exists coord_fonte text;
 alter table anp_revendas enable row level security;  -- ninguém lê pela internet
 alter table anp_precos enable row level security;
 alter table anp_estado enable row level security;
@@ -167,6 +174,48 @@ create or replace function anp_status(ok boolean, msg text, qtd int) returns voi
     mensagem_erro = excluded.mensagem_erro, precos_coletados = excluded.precos_coletados;
 $$;
 
+-- posto do mapa que já é este (a menos de 80 m, ou mesma rua e número), ainda não ligado a outra revenda
+create or replace function anp_posto_perto(cid text, plat double precision, plng double precision, prua text, pnum text)
+returns int language sql stable as $$
+  select p.id from postos p
+  where p.cidade = cid
+    and not exists (select 1 from anp_revendas r where r.posto_id = p.id)
+    and ((plat is not null and abs(p.lat - plat) < 0.001 and abs(p.lng - plng) < 0.001
+          and sqrt(power((p.lat - plat) * 111320, 2) + power((p.lng - plng) * 111320 * cos(radians(plat)), 2)) < 80)
+      or (anp_numero(pnum) is not null and anp_numero(split_part(p.endereco, ',', 2)) = anp_numero(pnum)
+          and anp_rua_parecida(split_part(p.endereco, ',', 1), prua)))
+  order by case when plat is null then 0
+    else power(p.lat - plat, 2) + power((p.lng - plng) * cos(radians(plat)), 2) end
+  limit 1;
+$$;
+
+-- cria (ou liga) no mapa os postos do cadastro que já têm coordenada; devolve quantos
+create or replace function anp_ligar_coordenadas() returns int language plpgsql as $$
+declare rv anp_revendas; cid text; pid int; nm record; n int := 0;
+begin
+  -- postos criados antes pelo Nominatim ganham a coordenada do cadastro, que é mais precisa
+  update postos p set lat = r.lat, lng = r.lng
+  from anp_revendas r where p.origem = 'anp' and p.codigo_origem = r.cnpj and r.lat is not null
+    and (p.lat, p.lng) is distinct from (r.lat, r.lng);
+  for rv in select * from anp_revendas where posto_id is null and lat is not null order by municipio, cnpj loop
+    cid := mp_nome_cidade(rv.municipio);
+    pid := anp_posto_perto(cid, rv.lat, rv.lng, rv.rua, rv.numero);
+    if pid is null then
+      select * into nm from mp_separar_nome(rv.nome);
+      insert into postos (id, nome, bandeira, endereco, bairro, cidade, uf, lat, lng, origem, codigo_origem)
+      values (nextval('postos_id_seq'), nm.nome, coalesce(rv.bandeira, nm.bandeira),
+        initcap(lower(rv.rua)) || coalesce(', ' || nullif(rv.numero, ''), ''), initcap(lower(rv.bairro)),
+        cid, 'PR', rv.lat, rv.lng, 'anp', rv.cnpj)
+      on conflict (origem, codigo_origem) do update set lat = excluded.lat, lng = excluded.lng
+      returning id into pid;
+    end if;
+    update anp_revendas set posto_id = pid where cnpj = rv.cnpj;
+    n := n + 1;
+  end loop;
+  perform anp_publicar();
+  return n;
+end $$;
+
 -- ---------- um passo (chamado a cada minuto) ----------
 create or replace function anp_passo() returns text
 language plpgsql security definer set search_path = public, net as $$
@@ -230,13 +279,17 @@ begin
       select avg(p.lat) a_lat, avg(p.lng) a_lng, count(*) n into centro from postos p where p.cidade = cid;
       if (centro.n > 0 and abs(lat - centro.a_lat) < 0.2 and abs(lng - centro.a_lng) < 0.2)
          or (centro.n = 0 and position(anp_sem_acento(cid) in anp_sem_acento(js -> 0 ->> 'display_name')) > 0) then
-        select * into nm from mp_separar_nome(rv.nome);
-        insert into postos (id, nome, bandeira, endereco, bairro, cidade, uf, lat, lng, origem, codigo_origem)
-        values (nextval('postos_id_seq'), nm.nome, coalesce(rv.bandeira, nm.bandeira),
-          initcap(lower(rv.rua)) || coalesce(', ' || nullif(rv.numero, ''), ''), initcap(lower(rv.bairro)),
-          cid, 'PR', lat, lng, 'anp', rv.cnpj)
-        on conflict (origem, codigo_origem) do update set lat = excluded.lat, lng = excluded.lng
-        returning id into pid;
+        -- se já houver posto a menos de 80 m, é o mesmo: liga em vez de duplicar
+        pid := anp_posto_perto(cid, lat, lng, null, null);
+        if pid is null then
+          select * into nm from mp_separar_nome(rv.nome);
+          insert into postos (id, nome, bandeira, endereco, bairro, cidade, uf, lat, lng, origem, codigo_origem)
+          values (nextval('postos_id_seq'), nm.nome, coalesce(rv.bandeira, nm.bandeira),
+            initcap(lower(rv.rua)) || coalesce(', ' || nullif(rv.numero, ''), ''), initcap(lower(rv.bairro)),
+            cid, 'PR', lat, lng, 'anp', rv.cnpj)
+          on conflict (origem, codigo_origem) do update set lat = excluded.lat, lng = excluded.lng
+          returning id into pid;
+        end if;
         update anp_revendas set posto_id = pid where cnpj = rv.cnpj;
         perform anp_publicar();
         return 'posto localizado';
@@ -247,18 +300,17 @@ begin
   end if;
 
   -- 4) próximo posto da ANP ainda fora do mapa
-  select * into rv from anp_revendas where posto_id is null and geo_tentativas < 2
-    order by geo_tentativas, municipio, cnpj limit 1;
+  if exists (select 1 from anp_revendas where posto_id is null and lat is not null) then
+    return format('%s postos do cadastro ligados', anp_ligar_coordenadas());
+  end if;
+  -- primeiro os que têm preço da ANP, depois o resto do cadastro
+  select * into rv from anp_revendas a where posto_id is null and geo_tentativas < 2
+    order by geo_tentativas, not exists (select 1 from anp_precos p where p.cnpj = a.cnpj), municipio, cnpj limit 1;
   if not found then return 'nada a fazer'; end if;
   cid := mp_nome_cidade(rv.municipio);
 
   -- 4a) já existe posto no mesmo endereço (vindo do Menor Preço)? usa o mesmo
-  select p.id into pid from postos p
-  where p.cidade = cid
-    and anp_numero(rv.numero) is not null
-    and anp_numero(split_part(p.endereco, ',', 2)) = anp_numero(rv.numero)
-    and anp_rua_parecida(split_part(p.endereco, ',', 1), rv.rua)
-  limit 1;
+  pid := anp_posto_perto(cid, null, null, rv.rua, rv.numero);
   if pid is not null then
     update anp_revendas set posto_id = pid where cnpj = rv.cnpj;
     perform anp_publicar();
@@ -275,7 +327,8 @@ begin
     timeout_milliseconds := 20000) where cnpj = rv.cnpj;
   return 'mapa pedido';
 end $$;
-revoke all on function anp_passo(), anp_gravar(text), anp_publicar(), anp_status(boolean, text, int) from public, anon, authenticated;
+revoke all on function anp_passo(), anp_gravar(text), anp_publicar(), anp_status(boolean, text, int), anp_ligar_coordenadas(),
+  anp_posto_perto(text, double precision, double precision, text, text) from public, anon, authenticated;
 
 -- ---------- leitura pelo app: preço da ANP vale por 21 dias, o do Menor Preço por 7 ----------
 create or replace function api_postos(comb text, cid text default null) returns jsonb

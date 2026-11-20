@@ -200,7 +200,10 @@ create or replace function mp_nome_cidade(mun text) returns text language sql im
     when 'PARANAVAI' then 'Paranavaí'
     when 'FRANCISCO BELTRAO' then 'Francisco Beltrão'
     when 'MARINGA' then 'Maringá'
-    else initcap(lower(mun)) end;
+    when 'PAICANDU' then 'Paiçandu'
+    when 'IPORA' then 'Iporã'
+    when 'GUAIRA' then 'Guaíra'
+    else replace(replace(replace(replace(initcap(lower(mun)), ' Do ', ' do '), ' Da ', ' da '), ' De ', ' de '), ' Dos ', ' dos ') end;
 $$;
 
 -- grava os itens de uma página; devolve quantos preços novos
