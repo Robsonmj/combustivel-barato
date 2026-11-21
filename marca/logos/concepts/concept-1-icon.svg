@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>AbasteceR - icone conceito 1</title>
+  <rect id="background" width="512" height="512" rx="112" fill="#1F2933"/>
+  <g id="icon" fill="#FF6B00">
+    <!-- R heroi: haste + bojo com contraforma -->
+    <path fill-rule="evenodd" d="M120 80 H290 A95 95 0 0 1 290 270 H200 V370 H120 Z M200 140 H285 A35 35 0 0 1 285 210 H200 Z"/>
+    <!-- perna em seta para baixo: preco caindo -->
+    <path d="M265 250 H335 V345 H375 L300 430 L225 345 H265 Z"/>
+  </g>
+</svg>

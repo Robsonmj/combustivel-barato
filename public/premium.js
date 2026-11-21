@@ -1,4 +1,4 @@
-// Combustível Barato Premium: Meu carro, Minha economia, Melhor dia, Cupons, Alertas de preço,
+// AbasteceR Premium: Meu carro, Minha economia, Melhor dia, Cupons, Alertas de preço,
 // Modo viagem (viagem.js) e Sem anúncios.
 // Tudo fica guardado só neste aparelho (localStorage); a assinatura paga é conferida na Play (cobranca.js). Conversa com o app apenas pela interface window.App.
 (function () {
@@ -123,7 +123,7 @@
     const caixa = $('#premium-conteudo');
     caixa.innerHTML = `
       <button class="fechar" aria-label="Fechar" data-fechar>×</button>
-      <h2>★ Combustível Barato Premium</h2>
+      <h2>★ AbasteceR Premium</h2>
       ${cartaoAssinatura()}
       ${secao('alertas', '🔔 Alertas de preço', 'Aviso quando a gasolina baixar do seu preço ou quando o posto favorito baixar', corpoAlertas)}
       ${secao('economia', '💰 Minha economia', 'Quanto você economizou no mês e no ano', corpoEconomia)}
@@ -147,7 +147,7 @@
     if (!el || !window.Cobranca) return;
     if (!(await Cobranca.disponivel())) {
       el.innerHTML = `<a class="btn primario" href="${Cobranca.LOJA}" target="_blank" rel="noopener">Assinar pelo app na Google Play</a>
-        <small>A assinatura é feita no app Combustível Barato da Google Play.</small>`;
+        <small>A assinatura é feita no app AbasteceR da Google Play.</small>`;
       return;
     }
     const p = await Cobranca.precos();

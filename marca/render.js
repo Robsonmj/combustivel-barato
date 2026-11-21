@@ -1,5 +1,5 @@
 // Tira um PNG de cada proposta da página marca/propostas.html (Chrome sem janela).
-// Uso: node marca/render.js
+// Uso: node marca/render.js [pagina.html] [pasta-saida]
 'use strict';
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -7,8 +7,8 @@ const os = require('os');
 const path = require('path');
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
-const PAGINA = 'file:///' + path.join(__dirname, 'propostas.html').replace(/\\/g, '/');
-const SAIDA = path.join(__dirname, 'png');
+const PAGINA = 'file:///' + path.resolve(process.argv[2] || path.join(__dirname, 'propostas.html')).replace(/\\/g, '/');
+const SAIDA = process.argv[3] ? path.resolve(process.argv[3]) : path.join(__dirname, 'png');
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
 (async () => {

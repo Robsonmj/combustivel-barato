@@ -7,7 +7,7 @@ Troque o que está entre colchetes antes de enviar. Mande o PDF `folheto-postos.
 ```
 Olá, tudo bem? Aqui é o Robson, de Toledo.
 
-Criei o Combustível Barato, um app gratuito, na Google Play, que mostra no mapa o preço da gasolina, etanol e diesel de cada posto de [CIDADE]. Os preços vêm das notas fiscais do Nota Paraná, então o [NOME DO POSTO] já aparece lá, com o preço de [GASOLINA R$ X,XX].
+Criei o AbasteceR, um app gratuito, na Google Play, que mostra no mapa o preço da gasolina, etanol e diesel de cada posto de [CIDADE]. Os preços vêm das notas fiscais do Nota Paraná, então o [NOME DO POSTO] já aparece lá, com o preço de [GASOLINA R$ X,XX].
 
 Dá uma olhada: https://robsonmj.github.io/combustivel-barato/
 

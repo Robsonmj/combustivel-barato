@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512">
+  <title>AbasteceR - conceito 5: tipografia dinamica</title>
+  <rect width="1024" height="512" fill="#FFFFFF"/>
+  <g id="wordmark">
+    <text x="72" y="330" font-family="Arial Black, Helvetica, Arial, sans-serif" font-weight="900" font-style="italic" font-size="100" textLength="500" lengthAdjust="spacingAndGlyphs" fill="#0E3B5C">Abastece</text>
+  </g>
+  <g id="icon" transform="translate(590 330) skewX(-12) scale(0.9)">
+    <!-- R: haste + bojo -->
+    <path fill="#22C55E" fill-rule="evenodd" d="M0 0V-200H88C140-200 170-168 170-132C170-96 142-72 104-70H52V0Z M52-158H84C106-158 118-148 118-132C118-116 106-108 84-108H52Z"/>
+    <!-- perna do R -->
+    <path fill="#22C55E" d="M60-72H112L164 0H106Z"/>
+    <!-- mangueira -->
+    <path fill="none" stroke="#22C55E" stroke-width="30" stroke-linecap="round" d="M132-16C144 12 180 26 232 16C278 8 304-24 312-62"/>
+    <!-- bico -->
+    <g transform="translate(312 -62) rotate(12)">
+      <path fill="none" stroke="#22C55E" stroke-width="16" stroke-linecap="round" d="M0-50H58"/>
+      <rect x="-24" y="-66" width="48" height="68" rx="12" fill="#22C55E"/>
+      <rect x="-24" y="-18" width="48" height="10" fill="#0E3B5C"/>
+    </g>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-# Combustível Barato — Toledo-PR (protótipo)
+# AbasteceR — Toledo-PR (protótipo)
 
 App web que mostra no mapa os postos de Toledo-PR com o preço atual de gasolina, etanol e diesel,
 para achar o posto mais barato e mais perto e traçar a rota.

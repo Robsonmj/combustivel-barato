@@ -159,7 +159,7 @@
     $('#cidade').value = c.nome;
     $('#cidade-nome').textContent = `${c.nome} · ${c.uf}`;
     if (salvar) salvarPreferencia('cidade', c.nome);
-    document.title = `Combustível Barato · ${c.nome}`;
+    document.title = `AbasteceR · ${c.nome}`;
     if (!estado.usandoGps) estado.origem = { ...c.centro };
     mapa.setView([c.centro.lat, c.centro.lng], c.zoom);
     estado.postos = [];
@@ -359,7 +359,7 @@
     else if (mp) st = `Última coleta falhou ${haQuanto(mp.ultima_execucao)} — mostrando os últimos preços conhecidos.`;
     const zap = window.AJUSTES?.whatsappContato;
     const anuncie = zap
-      ? ` · <a target="_blank" rel="noopener" href="https://wa.me/${zap}?text=${encodeURIComponent('Olá! Quero anunciar no Combustível Barato.')}">Anuncie aqui</a>`
+      ? ` · <a target="_blank" rel="noopener" href="https://wa.me/${zap}?text=${encodeURIComponent('Olá! Quero anunciar no AbasteceR.')}">Anuncie aqui</a>`
       : '';
     $('#rodape').innerHTML = `Dados: <strong>Nota Paraná / Menor Preço</strong> (preços das notas fiscais eletrônicas),
       <strong>ANP</strong> (levantamento semanal), postos e motoristas. ${st} Confira o preço na bomba.<br>

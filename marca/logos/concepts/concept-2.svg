@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512">
+  <title>AbasteceR - conceito 2 (bico-R)</title>
+  <g id="wordmark">
+    <text x="64" y="292" font-family="Arial Black, Helvetica, Arial, sans-serif" font-weight="900" font-size="150" fill="#1A1A1A" textLength="770" lengthAdjust="spacingAndGlyphs">Abastece</text>
+    <!-- faixa amarela (testeira do posto) -->
+    <rect x="64" y="327" width="892" height="24" rx="12" fill="#FFC20E"/>
+  </g>
+  <g id="icon" transform="translate(848 162.4) scale(0.36)">
+    <path fill="#E3262E" fill-rule="evenodd" d="M20 0H190A110 110 0 0 1 190 220H90V340H0V20A20 20 0 0 1 20 0ZM90 55H190A55 55 0 0 1 190 165H90Z"/>
+    <path fill="#E3262E" d="M115 205H205L300 360H222Z"/>
+    <rect fill="#1A1A1A" x="-13" y="-50" width="26" height="100" rx="8" transform="translate(197.5 267) rotate(57.2)"/>
+    <rect fill="#1A1A1A" x="-6" y="318" width="102" height="54" rx="14"/>
+  </g>
+</svg>

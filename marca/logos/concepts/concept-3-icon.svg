@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>AbasteceR - ícone conceito 3</title>
+  <rect width="512" height="512" rx="112" fill="#FFD200"/>
+  <g id="icon">
+    <rect x="106" y="48" width="300" height="416" rx="48" fill="#0B4DA2"/>
+    <rect x="134" y="76" width="244" height="240" rx="28" fill="#FFD200"/>
+    <path fill="#0B4DA2" fill-rule="evenodd" transform="translate(182.5 98.5) scale(1.5)"
+          d="M0,0 H60 A38,38 0 0 1 60,76 L98,130 H60 L28,84 V130 H0 Z M32,24 H58 A14,14 0 0 1 58,52 H32 Z"/>
+    <rect x="134" y="340" width="44" height="42" rx="12" fill="#FFD200"/>
+    <rect x="192" y="340" width="186" height="42" rx="14" fill="#FFFFFF"/>
+    <rect x="134" y="398" width="44" height="42" rx="12" fill="#FFD200"/>
+    <rect x="192" y="398" width="186" height="42" rx="14" fill="#FFFFFF"/>
+  </g>
+</svg>

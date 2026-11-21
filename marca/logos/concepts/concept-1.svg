@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512">
+  <title>AbasteceR - conceito 1 (tipografico, R com perna em seta de preco)</title>
+  <g id="wordmark">
+    <text x="103" y="300" font-family="Arial Black, Helvetica, Arial, sans-serif" font-size="140" font-weight="900" textLength="700" lengthAdjust="spacingAndGlyphs" fill="#1F2933">Abastece</text>
+  </g>
+  <g id="icon" fill="#FF6B00">
+    <!-- R heroi: haste + bojo com contraforma -->
+    <path fill-rule="evenodd" d="M823 200 H881.7 A32.4 32.4 0 0 1 881.7 264.8 H850.6 V300 H823 Z M850.6 220.7 H879.9 A12.1 12.1 0 0 1 879.9 244.9 H850.6 Z"/>
+    <!-- perna em seta para baixo: preco caindo -->
+    <path d="M873 258.7 H897.2 V291.4 H911 L885.1 320.8 L859.2 291.4 H873 Z"/>
+  </g>
+</svg>

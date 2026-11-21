@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512">
+  <title>AbasteceR - conceito 3: placa de preço</title>
+  <g id="icon">
+    <!-- totem / placa de preço -->
+    <rect x="172" y="414" width="40" height="38" fill="#0B4DA2"/>
+    <rect x="124" y="444" width="136" height="24" rx="8" fill="#0B4DA2"/>
+    <rect x="72" y="44" width="240" height="380" rx="40" fill="#0B4DA2"/>
+    <rect x="96" y="68" width="192" height="212" rx="24" fill="#FFD200"/>
+    <path fill="#0B4DA2" fill-rule="evenodd" transform="translate(131 93) scale(1.25)"
+          d="M0,0 H60 A38,38 0 0 1 60,76 L98,130 H60 L28,84 V130 H0 Z M32,24 H58 A14,14 0 0 1 58,52 H32 Z"/>
+    <!-- painéis de preço -->
+    <rect x="96" y="304" width="36" height="36" rx="10" fill="#FFD200"/>
+    <rect x="144" y="304" width="144" height="36" rx="12" fill="#FFFFFF"/>
+    <rect x="96" y="360" width="36" height="36" rx="10" fill="#FFD200"/>
+    <rect x="144" y="360" width="144" height="36" rx="12" fill="#FFFFFF"/>
+  </g>
+  <g id="wordmark">
+    <text x="352" y="300" font-family="Arial Black, Helvetica, Arial, sans-serif" font-weight="900"
+          font-size="116" textLength="452" lengthAdjust="spacingAndGlyphs" fill="#0B4DA2">Abastece</text>
+    <rect x="812" y="196" width="112" height="124" rx="18" fill="#FFD200"/>
+    <path fill="#0B4DA2" fill-rule="evenodd" transform="translate(836.6 217) scale(0.64)"
+          d="M0,0 H60 A38,38 0 0 1 60,76 L98,130 H60 L28,84 V130 H0 Z M32,24 H58 A14,14 0 0 1 58,52 H32 Z"/>
+    <rect x="352" y="348" width="572" height="10" rx="5" fill="#FFD200"/>
+  </g>
+</svg>

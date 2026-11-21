@@ -105,7 +105,7 @@
     ]);
     const atual = Object.fromEntries((atuais || []).map((x) => [x.combustivel, x]));
     const destaqueAtivo = dest && dest.ativo_ate >= Nuvem.hoje();
-    const linkZap = zap ? `https://wa.me/${zap}?text=${encodeURIComponent('Olá! Quero o destaque no Combustível Barato para o posto ' + p.posto_nome)}` : '';
+    const linkZap = zap ? `https://wa.me/${zap}?text=${encodeURIComponent('Olá! Quero o destaque no AbasteceR para o posto ' + p.posto_nome)}` : '';
 
     div.innerHTML = `
       <h3>${esc(p.posto_nome)}</h3>

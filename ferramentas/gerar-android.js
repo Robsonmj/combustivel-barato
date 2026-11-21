@@ -21,8 +21,8 @@ const SITE = 'https://robsonmj.github.io/combustivel-barato/';
   const j = core.TwaManifest.fromWebManifestJson(new URL('manifest.webmanifest', SITE), web).toJson();
 
   j.packageId = 'io.github.robsonmj.combustivelbarato';
-  j.name = 'Combustível Barato';
-  j.launcherName = 'Combustível';
+  j.name = 'AbasteceR';
+  j.launcherName = 'AbasteceR';
   j.appVersionCode = codigo;
   j.appVersion = nome;
   j.navigationColor = '#0f766e';

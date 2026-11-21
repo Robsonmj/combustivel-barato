@@ -2,19 +2,22 @@
 <html lang="pt-BR"><head><meta charset="utf-8">
 <style>
   html, body { margin: 0; width: 1024px; height: 500px; overflow: hidden; }
-  body { font-family: "Segoe UI", system-ui, sans-serif; background: linear-gradient(135deg, #0f766e 0%, #115e59 100%); color: #fff;
-    display: flex; align-items: center; padding: 0 64px; box-sizing: border-box; gap: 48px; }
-  .icone { width: 168px; height: 168px; flex: none; filter: drop-shadow(0 8px 24px rgba(0,0,0,.25)); }
-  h1 { font-size: 64px; margin: 0 0 10px; letter-spacing: -1.5px; line-height: 1; }
-  p { font-size: 27px; margin: 0; opacity: .92; line-height: 1.3; }
-  .precos { display: flex; gap: 12px; margin-top: 26px; }
-  .p { background: #fff; color: #15803d; border-radius: 12px; padding: 8px 16px; font-weight: 700; font-size: 26px; }
-  .p small { display: block; font-size: 14px; color: #5b6662; font-weight: 600; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: radial-gradient(circle at 25% 45%, #FFE27A 0%, #FFD43B 55%, #F9C81E 100%); color: #001B44;
+    display: flex; align-items: center; padding: 0 56px 0 36px; box-sizing: border-box; gap: 28px; }
+  .simbolo { width: 380px; height: 300px; flex: none; }
+  .simbolo svg { width: 100%; height: 100%; display: block; }
+  h1 { font-size: 86px; margin: 0 0 8px; letter-spacing: -2px; line-height: 1; font-weight: 900; }
+  h1 span { color: #05A81C; }
+  p { font-size: 28px; margin: 0; line-height: 1.3; font-weight: 600; }
+  .precos { display: flex; gap: 12px; margin-top: 24px; }
+  .p { background: #001B44; color: #FFD43B; border-radius: 12px; padding: 8px 16px; font-weight: 800; font-size: 24px; }
+  .p small { display: block; font-size: 14px; color: #c9d6e8; font-weight: 600; }
 </style></head>
 <body>
-  <svg class="icone" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#fff"/><path d="M18 50V16a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4v34" fill="none" stroke="#0f766e" stroke-width="4" stroke-linejoin="round"/><rect x="22" y="17" width="14" height="10" rx="2" fill="#0f766e"/><path d="M14 50h30M40 26h4l4 4v14a3 3 0 0 0 6 0V24l-5-5" fill="none" stroke="#0f766e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- o símbolo (marca/final/abastecer-simbolo.svg) é colocado aqui por ferramentas/capturas.js -->
+  <div class="simbolo"><!--SIMBOLO--></div>
   <div>
-    <h1>Combustível Barato</h1>
+    <h1>Abastece<span>R</span></h1>
     <p>O posto mais barato perto de você, no mapa.</p>
     <div class="precos">
       <div class="p"><small>Gasolina</small>mais barata</div>
