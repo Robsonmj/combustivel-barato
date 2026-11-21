@@ -1,4 +1,4 @@
-# Combustível Barato na Google Play: passo a passo
+# AbasteceR (antigo Combustível Barato) na Google Play: passo a passo
 
 Tudo o que dá para fazer sem você já está pronto. O que falta são as etapas que só o dono da conta pode fazer: pagar, verificar a identidade e clicar em "Publicar".
 
@@ -32,7 +32,7 @@ Nome do pacote, que não pode mudar depois: `io.github.robsonmj.combustivelbarat
 
 Em "Criar app":
 
-- **Nome do app:** Combustível Barato
+- **Nome do app:** AbasteceR (antigo Combustível Barato)
 - **Idioma padrão:** Português (Brasil)
 - **App ou jogo:** App
 - **Gratuito ou pago:** Gratuito. Essa escolha não pode virar "pago" depois, mas você pode vender destaque e patrocínio fora do app normalmente.
@@ -86,7 +86,7 @@ Fica no menu **Política → Conteúdo do app**. Respostas prontas:
 
 **Nome do app** (até 30 caracteres):
 ```
-Combustível Barato
+AbasteceR (antigo Combustível Barato)
 ```
 
 **Descrição breve** (até 80 caracteres; esta tem 76):
@@ -98,7 +98,7 @@ Posto mais barato em Toledo, Cascavel, Foz do Iguaçu, Guarapuava e Marechal.
 ```
 Encontre o combustível mais barato perto de você.
 
-O Combustível Barato mostra no mapa o preço da gasolina, etanol, diesel S10 e diesel S500 nos postos de cinco cidades do Paraná, com os preços mais recentes de cada posto:
+O AbasteceR (antigo Combustível Barato) mostra no mapa o preço da gasolina, etanol, diesel S10 e diesel S500 nos postos de cinco cidades do Paraná, com os preços mais recentes de cada posto:
 
 • Toledo
 • Cascavel
@@ -119,9 +119,9 @@ De onde vêm os preços
 Os preços vêm das informações públicas do Nota Paraná / Menor Preço (valores registrados nas notas fiscais eletrônicas de venda) e dos próprios postos parceiros, que aparecem com o selo "Confirmado pelo posto". O horário mostrado é o da última venda registrada. Confira sempre o preço na bomba.
 
 É dono de posto?
-Pelo site do Combustível Barato, na "Área do posto", você atualiza os preços do seu posto gratuitamente e ganha o selo de preço confirmado. Também é possível anunciar com destaque no app.
+Pelo site do AbasteceR (antigo Combustível Barato), na "Área do posto", você atualiza os preços do seu posto gratuitamente e ganha o selo de preço confirmado. Também é possível anunciar com destaque no app.
 
-O Combustível Barato é um app independente, sem vínculo com o Governo do Paraná, a Secretaria da Fazenda ou o programa Nota Paraná.
+O AbasteceR (antigo Combustível Barato) é um app independente, sem vínculo com o Governo do Paraná, a Secretaria da Fazenda ou o programa Nota Paraná.
 ```
 
 **Imagens:**
