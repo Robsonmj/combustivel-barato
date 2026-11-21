@@ -1,4 +1,4 @@
-// AbasteceR Premium: Meu carro, Minha economia, Melhor dia, Cupons, Alertas de preço,
+// AbasteceR Premium: Média do meu carro (cálculo em consumo.js), Meu carro, Minha economia, Melhor dia, Cupons, Alertas de preço,
 // Modo viagem (viagem.js) e Sem anúncios.
 // Tudo fica guardado só neste aparelho (localStorage); a assinatura paga é conferida na Play (cobranca.js). Conversa com o app apenas pela interface window.App.
 (function () {
@@ -130,6 +130,7 @@
       ${secao('dia', '📅 Melhor dia para abastecer', 'Dia da semana mais barato e se o preço está subindo', () => '<div id="melhor-dia">Carregando…</div>')}
       ${secao('cupons', '🎟️ Cupons dos postos', 'Descontos exclusivos dos postos parceiros', () => '<div id="lista-cupons">Carregando…</div>')}
       ${secao('viagem', '🛣️ Modo viagem', 'Posto mais barato no caminho entre cidades', () => '<button class="btn primario" data-viagem>Planejar viagem</button>')}
+      ${secao('media', '📊 Média do meu carro', 'Quantos km por litro seu carro faz na cidade e na rodovia, e se etanol ou gasolina compensa', corpoMedia)}
       ${secao('carro', '🚗 Meu carro', 'Custo real por posto e etanol ou gasolina para o seu carro', corpoCarro)}
       ${secao('apelidos', '🏷️ Apelidos dos postos', 'Dê ao posto o nome que todo mundo usa, no lugar da razão social', corpoApelidos)}
       ${secao('anuncios', '🚫 Sem anúncios', 'Sem faixa de patrocínio e sem cartões patrocinados', corpoAnuncios)}`;
@@ -187,6 +188,7 @@
       window.Viagem?.abrir();
     });
     ligarCarro(caixa);
+    ligarMedia(caixa);
     ligarEconomia(caixa);
     ligarAlertas(caixa);
     caixa.querySelectorAll('[data-apagar-apelido]').forEach((bt) => bt.addEventListener('click', () => {
@@ -211,7 +213,7 @@
       <label>Consumo com etanol (km por litro) <input name="kmLEtanol" inputmode="decimal" value="${c.kmLEtanol ? decimal(c.kmLEtanol) : ''}" placeholder="Ex.: 8,0"></label>
       <label>Quantos litros você costuma abastecer <input name="litros" inputmode="numeric" value="${c.litros || ''}" placeholder="Ex.: 40" required></label>
       <button class="btn primario">Salvar meu carro</button>
-      <p class="msg" id="msg-carro" role="status">${c.kmL ? 'O custo-benefício e a dica etanol × gasolina já usam o seu carro.' : 'Dica: o consumo aparece no painel do carro ou no manual.'}</p>
+      <p class="msg" id="msg-carro" role="status">${c.medido ? 'Preenchido com as médias medidas em "Média do meu carro". Você pode mudar à mão.' : c.kmL ? 'O custo-benefício e a dica etanol × gasolina já usam o seu carro.' : 'Dica: o consumo aparece no painel do carro ou no manual. Ou registre os abastecimentos com a quilometragem e o app mede sozinho.'}</p>
     </form>`;
   }
   function ligarCarro(caixa) {
@@ -229,7 +231,7 @@
         msg.textContent = 'Confira os números: consumo entre 2 e 40 km/l e litros entre 1 e 200.';
         return;
       }
-      pref.salvarJson('carro', { kmL, kmLEtanol, litros });
+      pref.salvarJson('carro', { kmL, kmLEtanol, litros, medido: false });
       aplicar();
       msg.className = 'msg ok';
       const limite = Math.round((kmLEtanol / kmL) * 100);
@@ -241,11 +243,11 @@
   function corpoEconomia() {
     const lista = abastecimentos();
     const agora = new Date();
-    const soma = (filtro) => lista.filter(filtro).reduce((t, a) => t + a.economia, 0);
+    const soma = (filtro) => lista.filter(filtro).reduce((t, a) => t + (a.economia || 0), 0);
     const mes = soma((a) => a.data.slice(0, 7) === agora.toISOString().slice(0, 7));
     const ano = soma((a) => a.data.slice(0, 4) === String(agora.getFullYear()));
     const ultimos = lista.slice(-5).reverse().map((a) => `<tr><td>${new Date(a.data).toLocaleDateString('pt-BR')} · ${esc(a.posto || NOMES[a.combustivel])}</td>
-      <td>${numero(a.litros)} l a ${reais(a.preco)}</td><td class="${a.economia >= 0 ? 'eco-mais' : 'eco-menos'}">${a.economia >= 0 ? '+' : '−'}${reais(Math.abs(a.economia))}</td></tr>`).join('');
+      <td>${numero(a.litros)} l a ${reais(a.preco)}</td>${a.economia == null ? '<td>—</td>' : `<td class="${a.economia >= 0 ? 'eco-mais' : 'eco-menos'}">${a.economia >= 0 ? '+' : '−'}${reais(Math.abs(a.economia))}</td>`}</tr>`).join('');
     return `<div class="economia-totais">
         <div><small>Este mês</small><strong>${reais(mes)}</strong></div>
         <div><small>Este ano</small><strong>${reais(ano)}</strong></div>
@@ -264,48 +266,190 @@
     });
   }
 
+  /** Campos do abastecimento (usados no detalhe do posto e na "Média do meu carro"). */
+  function camposAbastecimento(comb, preco) {
+    const ult = [...abastecimentos()].reverse().find((a) => a.km);
+    return `<label>Combustível <select name="combustivel">${Object.entries(NOMES).map(([k, v]) => `<option value="${k}" ${k === comb ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+        <label>Preço que você pagou por litro <input name="preco" inputmode="decimal" value="${preco ? numero(preco) : ''}" required></label>
+        <label>Litros <input name="litros" inputmode="decimal" value="${carro()?.litros || ''}" required></label>
+        <label>Quilometragem do painel (opcional, para medir a média) <input name="km" inputmode="numeric" placeholder="${ult ? 'Último: ' + Math.round(ult.km).toLocaleString('pt-BR') + ' km' : 'Ex.: 45.230'}"></label>
+        <label class="opcao"><input type="checkbox" name="cheio" checked> Enchi o tanque</label>
+        <label>Desde o último abastecimento, rodei mais <select name="uso">
+          <option value="cidade">na cidade</option><option value="rodovia">na rodovia</option><option value="misto" selected>misto (cidade e rodovia)</option></select></label>`;
+  }
+
+  /** Grava o abastecimento; devolve o texto de resposta. Economia só quando há preço médio da cidade. */
+  async function registrarAbastecimento(d, postoNome, cidade) {
+    const preco = lerNumero(d.preco);
+    const litros = lerNumero(d.litros);
+    const km = d.km ? Math.round(lerNumero(String(d.km).replace(/\./g, ''))) : null;
+    if (!(preco > 1 && preco < 20 && litros > 0 && litros < 500)) throw new Error('Confira o preço e os litros.');
+    if (d.km && !(km > 0 && km < 3000000)) throw new Error('Confira a quilometragem: só números, como 45230.');
+    const antes = Consumo.medias(abastecimentos()).trechos.length;
+    const media = await mediaDaCidade(d.combustivel, cidade).catch(() => null);
+    const economia = media ? Math.round((media - preco) * litros * 100) / 100 : null;
+    const lista = abastecimentos();
+    lista.push({ data: new Date().toISOString(), posto: postoNome || null, combustivel: d.combustivel, preco, litros, media, economia,
+      km, cheio: d.cheio === 'on', uso: d.uso || 'misto' });
+    pref.salvarJson('abastecimentos', lista.slice(-500));
+    const partes = [];
+    if (economia != null) {
+      partes.push(economia >= 0
+        ? `Você economizou ${reais(economia)} em relação à média da cidade (${reais(media)}).`
+        : `Este abastecimento saiu ${reais(-economia)} acima da média da cidade (${reais(media)}).`);
+    }
+    const m = Consumo.medias(lista);
+    if (m.trechos.length > antes) {
+      const t = m.trechos[m.trechos.length - 1];
+      partes.push(t.combustivel === 'mistura'
+        ? `Este tanque deu ${decimal(t.kmL)} km/l (gasolina e etanol misturados, fica fora das médias).`
+        : `Este tanque de ${NOMES[t.combustivel].toLowerCase()} deu ${decimal(t.kmL)} km/l em ${decimal(t.km)} km.`);
+      atualizarCarroComMedias(m);
+    } else if (km && d.cheio === 'on') {
+      partes.push('Na próxima vez que encher o tanque, informe a quilometragem de novo e o app calcula a média.');
+    } else if (km) {
+      partes.push('Abastecimento parcial guardado; a média sai quando você encher o tanque.');
+    }
+    return 'Registrado! ' + partes.join(' ');
+  }
+
+  /** "Meu carro" passa a usar as médias medidas (o que faltar continua como estava). */
+  function atualizarCarroComMedias(m) {
+    const g = m.porCombustivel.gasolina?.geral?.kmL;
+    const e = m.porCombustivel.etanol?.geral?.kmL;
+    if (!g && !e) return;
+    const c = carro() || {};
+    const kmL = g || c.kmL || Math.round((e / 0.7) * 10) / 10;
+    const kmLEtanol = e || c.kmLEtanol || Math.round(kmL * 0.7 * 10) / 10;
+    const ult = [...abastecimentos()].reverse().find((a) => a.cheio);
+    pref.salvarJson('carro', { kmL, kmLEtanol, litros: c.litros || Math.round(ult?.litros || 40), medido: true });
+    aplicar();
+  }
+
   /** Bloco "Abasteci aqui" no detalhe do posto. */
   function formAbasteci(posto, precos) {
     const comb = App.combustivel();
     const atual = precos.find((x) => x.combustivel === comb);
     const div = document.createElement('div');
     div.className = 'abasteci';
-    div.innerHTML = `<details><summary>⛽ Abasteci aqui (registrar economia)</summary>
+    div.innerHTML = `<details><summary>⛽ Abasteci aqui (economia e média do carro)</summary>
       <form class="form">
-        <label>Combustível <select name="combustivel">${Object.entries(NOMES).map(([k, v]) => `<option value="${k}" ${k === comb ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
-        <label>Preço que você pagou por litro <input name="preco" inputmode="decimal" value="${atual ? numero(atual.valor) : ''}" required></label>
-        <label>Litros <input name="litros" inputmode="decimal" value="${carro()?.litros || ''}" required></label>
+        ${camposAbastecimento(comb, atual?.valor)}
         <button class="btn primario">Registrar</button>
         <p class="msg" role="status"></p>
       </form></details>`;
     const f = div.querySelector('form');
     f.addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      const d = Object.fromEntries(new FormData(f));
-      const preco = lerNumero(d.preco);
-      const litros = lerNumero(d.litros);
       const msg = f.querySelector('.msg');
-      if (!(preco > 1 && preco < 20 && litros > 0 && litros < 500)) {
+      try {
+        msg.className = 'msg ok';
+        msg.textContent = await registrarAbastecimento(Object.fromEntries(new FormData(f)), posto.nome, posto.cidade || App.cidadeAtual()?.nome);
+      } catch (e) {
         msg.className = 'msg erro';
-        msg.textContent = 'Confira o preço e os litros.';
-        return;
+        msg.textContent = e.message;
       }
-      const media = await mediaDaCidade(d.combustivel, posto.cidade || App.cidadeAtual()?.nome);
-      if (!media) {
-        msg.className = 'msg erro';
-        msg.textContent = 'Sem preço médio da cidade para comparar agora. Tente mais tarde.';
-        return;
-      }
-      const economia = Math.round((media - preco) * litros * 100) / 100;
-      const lista = abastecimentos();
-      lista.push({ data: new Date().toISOString(), posto: posto.nome, combustivel: d.combustivel, preco, litros, media, economia });
-      pref.salvarJson('abastecimentos', lista.slice(-500));
-      msg.className = 'msg ok';
-      msg.textContent = economia >= 0
-        ? `Registrado! Você economizou ${reais(economia)} em relação à média da cidade (${reais(media)}).`
-        : `Registrado. Este abastecimento saiu ${reais(-economia)} acima da média da cidade (${reais(media)}).`;
     });
     return div;
+  }
+
+  // ---------- Média do meu carro ----------
+  function corpoMedia() {
+    const m = Consumo.medias(abastecimentos());
+    const comb = App.combustivel();
+    const precoAtual = App.resumo().find((r) => r.combustivel === comb)?.minimo;
+    const form = `<details class="sub"${m.trechos.length ? '' : ' open'}><summary>➕ Registrar abastecimento</summary>
+      <form class="form" id="form-media">
+        ${camposAbastecimento(comb, precoAtual)}
+        <button class="btn primario">Registrar</button>
+        <p class="msg" id="msg-media" role="status"></p>
+      </form>
+      <p class="fonte-txt">Também dá para registrar pelo posto: toque nele e use "Abasteci aqui".</p></details>`;
+    if (!m.trechos.length) {
+      return `<p>Para medir a média real do seu carro:</p>
+        <ol class="passos"><li>Encha o tanque e registre, com a quilometragem do painel.</li>
+        <li>Rode normalmente. Se completar no meio, registre também, sem marcar "Enchi o tanque".</li>
+        <li>Na próxima vez que encher o tanque, registre com a nova quilometragem.</li></ol>
+        <p>O app divide os km rodados pelos litros e mostra a média na cidade, na rodovia e com cada combustível.</p>${form}`;
+    }
+    const linha = (rot, x) => (x ? `<tr><td>${rot}</td><td><strong>${decimal(x.kmL)} km/l</strong></td><td>${x.trechos} tanque${x.trechos > 1 ? 's' : ''} · ${Math.round(x.km).toLocaleString('pt-BR')} km</td></tr>` : '');
+    const tabelas = Object.entries(m.porCombustivel).map(([c, g]) => `<h4>${esc(NOMES[c] || c)}</h4>
+      <table class="tabela media"><tbody>${linha('Geral', g.geral)}${linha('🏙️ Cidade', g.cidade)}${linha('🛣️ Rodovia', g.rodovia)}${linha('🔀 Misto', g.misto)}</tbody></table>`).join('');
+    return `${tabelas || '<p>Ainda sem tanque de um combustível só (gasolina e etanol misturados não entram na média).</p>'}
+      ${comparacao(m)}
+      ${avisoConsumo(m)}
+      ${historico(m)}
+      ${form}
+      <p class="fonte-txt">Média pelo método do tanque cheio: km rodados entre dois tanques cheios ÷ litros colocados. Quanto mais tanques, mais precisa.
+        As médias também preenchem o "Meu carro". Tudo fica só no seu celular.</p>`;
+  }
+
+  /** Etanol × gasolina com as médias medidas e os preços mais baratos da cidade agora. */
+  function comparacao(m) {
+    const r = App.resumo();
+    const pg = Number(r.find((x) => x.combustivel === 'gasolina')?.minimo);
+    const pe = Number(r.find((x) => x.combustivel === 'etanol')?.minimo);
+    const cidade = esc(App.cidadeAtual()?.nome || '');
+    const g = m.porCombustivel.gasolina;
+    const e = m.porCombustivel.etanol;
+    if (!g || !e) {
+      const falta = g ? 'etanol' : e ? 'gasolina' : null;
+      return falta ? `<div class="compara"><p>Para comparar etanol × gasolina com os números do seu carro, meça também um tanque de <strong>${falta}</strong>.</p></div>` : '';
+    }
+    if (!(pg > 0 && pe > 0)) return `<div class="compara"><p>Sem preço de etanol e gasolina em ${cidade} agora para comparar.</p></div>`;
+    const tanque = carro()?.litros || 40;
+    // economia num tanque: km que um tanque do combustível que compensa rende × diferença de custo por km
+    const economiaTanque = (c) => Math.abs(c.rsKmG - c.rsKmE) * (c.melhor === 'etanol' ? c.kmLE : c.kmLG) * tanque;
+    const empate = (c) => economiaTanque(c) < 1; // menos de R$ 1 por tanque: tanto faz
+    const linhas = [null, 'cidade', 'rodovia'].map((uso) => {
+      const c = Consumo.comparar(m, pg, pe, uso);
+      if (!c || (uso && !c.uso)) return '';
+      const veredito = empate(c) ? 'praticamente empate' : `<strong>${c.melhor === 'etanol' ? 'etanol' : 'gasolina'}</strong>, economia de ${reais(economiaTanque(c))} por tanque`;
+      return `<li><b>${uso ? Consumo.USOS[uso] : 'Geral'}:</b> gasolina ${reais(c.rsKmG * 100)} × etanol ${reais(c.rsKmE * 100)} a cada 100 km → ${veredito}</li>`;
+    }).join('');
+    const geral = Consumo.comparar(m, pg, pe);
+    const conclusao = empate(geral) ? 'tanto faz: os dois custam quase o mesmo por km' : `<strong>${geral.melhor === 'etanol' ? 'o etanol' : 'a gasolina'} compensa</strong>`;
+    return `<div class="compara"><h4>Etanol ou gasolina, no seu carro?</h4>
+      <p>Com o etanol a ${reais(pe)} e a gasolina a ${reais(pg)} (mais baratos em ${cidade} agora), ${conclusao}.
+        No seu carro, o etanol vale a pena até <strong>${geral.limite}%</strong> do preço da gasolina (hoje está em ${Math.round((pe / pg) * 100)}%).</p>
+      <ul class="compara-lista">${linhas}</ul>
+      <p class="fonte-txt">Custo a cada 100 km rodados = preço do litro ÷ km por litro medido × 100. Economia calculada para um tanque de ${tanque} litros.</p></div>`;
+  }
+
+  function avisoConsumo(m) {
+    const a = Consumo.alertaConsumo(m);
+    return a ? `<div class="aviso-consumo">⚠️ O último tanque deu ${decimal(a.ultimo)} km/l, ${a.queda}% abaixo da sua média (${decimal(a.media)} km/l) no mesmo tipo de uso.
+      Vale conferir a calibragem dos pneus, o filtro de ar e a revisão.</div>` : '';
+  }
+
+  /** Barras dos últimos tanques medidos (km/l de cada um). */
+  function historico(m) {
+    const ts = m.trechos.slice(-10);
+    if (ts.length < 2) return '';
+    const max = Math.max(...ts.map((t) => t.kmL));
+    const barras = ts.map((t) => `<div class="hist-barra" title="${new Date(t.ate).toLocaleDateString('pt-BR')}: ${decimal(t.kmL)} km/l">
+        <span>${decimal(t.kmL)}</span><i class="c-${t.combustivel}" style="height:${Math.round((t.kmL / max) * 100)}%"></i>
+        <small>${new Date(t.ate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</small></div>`).join('');
+    return `<h4>Últimos tanques</h4><div class="historico">${barras}</div>
+      <p class="fonte-txt"><i class="leg c-gasolina"></i> gasolina <i class="leg c-etanol"></i> etanol <i class="leg c-mistura"></i> misturado</p>`;
+  }
+
+  function ligarMedia(caixa) {
+    const f = caixa.querySelector('#form-media');
+    if (!f) return;
+    f.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const msg = f.querySelector('#msg-media');
+      try {
+        const texto = await registrarAbastecimento(Object.fromEntries(new FormData(f)), null, App.cidadeAtual()?.nome);
+        desenharTela();
+        abrir('media');
+        $('#premium-conteudo [data-secao="media"] .recurso-corpo')?.insertAdjacentHTML('afterbegin', `<p class="msg ok">${esc(texto)}</p>`);
+      } catch (e) {
+        msg.className = 'msg erro';
+        msg.textContent = e.message;
+      }
+    });
   }
 
   async function mediaDaCidade(comb, cidade) {
