@@ -147,9 +147,23 @@
     sel.addEventListener('change', () => trocarCidade(sel.value, true));
     if (!estado.config.combustiveis.includes(estado.combustivel)) estado.combustivel = 'gasolina';
     montarChips();
-    const padrao = estado.config.cidade?.nome || estado.cidades[0].nome;
-    trocarCidade(estado.cidades.some((c) => c.nome === salva) ? salva : padrao, false);
     setInterval(carregar, 5 * 60 * 1000); // atualiza a cada 5 minutos
+    if (estado.cidades.some((c) => c.nome === salva)) return trocarCidade(salva, false);
+    // primeira visita: o app atende várias cidades, então não abre em nenhuma fixa.
+    // Tenta a localização; se não der, pede para a pessoa escolher a cidade.
+    pedirCidade('Localizando…', 'Procurando a cidade mais perto de você…');
+    pedirLocalizacao(false, () => pedirCidade('Escolha sua cidade', 'Escolha sua cidade no alto da tela para ver os postos.'));
+  }
+
+  /** Sem cidade escolhida: mostra o Paraná inteiro e um aviso no lugar da lista. */
+  function pedirCidade(rotulo, aviso) {
+    if (estado.cidade) return;
+    const sel = $('#cidade');
+    if (!sel.querySelector('option[value=""]')) sel.insertAdjacentHTML('afterbegin', '<option value="" disabled>Escolha sua cidade</option>');
+    sel.value = '';
+    $('#cidade-nome').textContent = rotulo;
+    mapa.setView([-24.6, -51.6], 7);
+    $('#lista').innerHTML = `<li class="vazio">${esc(aviso)}</li>`;
   }
 
   /** Muda a cidade mostrada: centraliza o mapa e carrega os postos dela. */
@@ -196,6 +210,7 @@
   }
 
   async function carregar() {
+    if (!estado.cidade) return; // ainda sem cidade escolhida (primeira visita)
     try {
       const [d] = await Promise.all([api('/api/postos?combustivel=' + estado.combustivel + '&cidade=' + encodeURIComponent(estado.cidade.nome)), carregarExtras()]);
       if (d.cidade !== undefined && d.cidade !== estado.cidade.nome) return; // resposta de outra cidade (troca rápida)
@@ -527,8 +542,8 @@
   $('#alca').addEventListener('click', () => $('#painel').classList.toggle('aberto'));
   $('#btn-local').addEventListener('click', () => pedirLocalizacao(true));
 
-  function pedirLocalizacao(centralizar) {
-    if (!navigator.geolocation) return;
+  function pedirLocalizacao(centralizar, semCidade) {
+    if (!navigator.geolocation) return semCidade?.();
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         estado.origem = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -540,6 +555,7 @@
           zIndexOffset: 2000,
         }).addTo(mapa);
         const perto = cidadeMaisProxima(estado.origem);
+        if (!perto && !estado.cidade) return semCidade?.();
         if (perto && perto !== estado.cidade) {
           trocarCidade(perto.nome, true).then(() => {
             if (centralizar) mapa.setView([estado.origem.lat, estado.origem.lng], 14);
@@ -550,6 +566,7 @@
         desenhar();
       },
       () => {
+        semCidade?.();
         if (centralizar) alert('Não foi possível obter sua localização. As distâncias são calculadas a partir do centro da cidade.');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },

@@ -17,7 +17,7 @@
 <path d="M410 800 L472 330 Q478 308 502 308 H694 Q718 308 724 330 L900 800 Z" fill="url(#gCorpo)" stroke="url(#gCorpo)" stroke-width="6" stroke-linejoin="round"/>
 <rect x="431" y="410" width="34" height="46" rx="10" fill="#001B44"/>
 <path d="M360 446 C 374 412, 397 422, 437 426" fill="none" stroke="#001B44" stroke-width="24" stroke-linecap="round"/>
-<g transform="translate(355 448) rotate(116)" fill="#001B44"><path d="M-8 -38 Q-8 -46 2 -46 H112 Q132 -46 140 -28 L162 24 Q166 38 150 38 H2 Q-8 38 -8 28 Z"/><rect x="154" y="-26" width="32" height="52" rx="10"/><rect x="40" y="-30" width="74" height="22" rx="11" fill="#FFFFFF"/></g>
+<g transform="translate(355 448) rotate(116)" fill="#001B44"><path d="M-8 -38 Q-8 -46 2 -46 H112 Q132 -46 140 -28 L162 24 Q166 38 150 38 H2 Q-8 38 -8 28 Z"/><rect x="154" y="-26" width="32" height="52" rx="10"/><rect x="40" y="-30" width="74" height="22" rx="11" fill="#FFD43B"/></g>
 <path d="M274 613 C 232 705, 230 742, 280 772 C 334 792, 404 784, 428 762" fill="none" stroke="#001B44" stroke-width="32" stroke-linecap="round"/>
 <rect x="408" y="734" width="30" height="52" rx="9" fill="#001B44"/>
 <path d="M551 430 L669 430 L711 540 L536 540 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"/><path d="M565 442 L658 442 L690 528 L554 528 Z" fill="#0B2A5C" stroke="#0B2A5C" stroke-width="8" stroke-linejoin="round"/><text x="617" y="502" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="46" letter-spacing="3" fill="#FFD43B">R$</text>

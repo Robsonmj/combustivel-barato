@@ -47,7 +47,7 @@ async function main() {
 
   // ---- celular 1080x1920 (360x640 x3) ----
   await cmd('Emulation.setDeviceMetricsOverride', { width: 360, height: 640, deviceScaleFactor: 3, mobile: true });
-  await cmd('Emulation.setGeolocationOverride', { latitude: -24.7246, longitude: -53.7412, accuracy: 30 });
+  await cmd('Emulation.setGeolocationOverride', { latitude: -23.4205, longitude: -51.9333, accuracy: 30 }); // Maringá (o app abre na cidade mais perto)
   await cmd('Browser.grantPermissions', { permissions: ['geolocation'], origin: 'https://robsonmj.github.io' }).catch(() => {});
 
   await cmd('Page.navigate', { url: SITE });
@@ -78,7 +78,7 @@ async function main() {
 
   // ---- gráfico de destaque 1024x500 ----
   await cmd('Emulation.setDeviceMetricsOverride', { width: 1024, height: 500, deviceScaleFactor: 1, mobile: false });
-  const simbolo = fs.readFileSync(path.join(__dirname, '..', 'marca', 'final', 'abastecer-simbolo.svg'), 'utf8');
+  const simbolo = fs.readFileSync(path.join(__dirname, '..', 'marca', 'final', 'abastecer-simbolo-amarelo.svg'), 'utf8');
   const html = fs.readFileSync(path.join(__dirname, 'grafico-destaque.html'), 'utf8').replace('<!--SIMBOLO-->', simbolo);
   await cmd('Page.navigate', { url: 'data:text/html;charset=utf-8,' + encodeURIComponent(html) });
   await espera(1500);

@@ -1,7 +1,7 @@
 {
   "name": "AbasteceR",
   "short_name": "AbasteceR",
-  "description": "Preço de gasolina, etanol e diesel nos postos de Toledo, Cascavel, Maringá, Londrina, Foz do Iguaçu, Guarapuava e outras cidades do Paraná, no mapa.",
+  "description": "Preço de gasolina, etanol e diesel nos postos de 77 cidades do Paraná, como Londrina, Maringá, Cascavel, Foz do Iguaçu, Guarapuava e Toledo, no mapa.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
