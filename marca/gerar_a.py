@@ -271,16 +271,16 @@ FINAL = os.path.join(AQUI, 'final')
 os.makedirs(FINAL, exist_ok=True)
 _n, _t, _b, _ins, _f = OPC_Z['z3']
 _vz = visor_trap(_t, _b, _ins, _f)
-def final_svg(com_nome, vb, fundo=None):
+def final_svg(com_nome, vb, fundo=None, gatilho=None):
     s = logo_x(tip2, r2, by2, fim2, alt2, com_nome).replace(visor_topo(), _vz)
     # gatilho (vão do bico) na cor do fundo: amarelo no ícone, branco no fundo branco (pedido de Robson em 20/11/2026)
-    if fundo:
-        s = s.replace('rx="11" fill="#FFFFFF"', f'rx="11" fill="{fundo}"')
+    if fundo or gatilho:
+        s = s.replace('rx="11" fill="#FFFFFF"', f'rx="11" fill="{gatilho or fundo}"')
     return svg3(s, vb, fundo)
 arquivos_finais = {
     'abastecer-logo.svg': final_svg(True, '20 150 1214 900'),            # símbolo + nome, fundo transparente
     'abastecer-simbolo.svg': final_svg(False, '190 160 860 680'),       # só o símbolo, transparente
-    'abastecer-simbolo-amarelo.svg': final_svg(False, '190 160 860 680', AMARELO),  # para fundo amarelo (gráfico da Play)
+    'abastecer-simbolo-amarelo.svg': final_svg(False, '190 160 860 680', gatilho=AMARELO),  # transparente, gatilho amarelo, para fundo amarelo (gráfico da Play)
     'abastecer-icone.svg': final_svg(False, '113 24 940 940', AMARELO),         # ícone do app (fundo amarelo)
     'abastecer-icone-maskable.svg': final_svg(False, '-47 -136 1260 1260', AMARELO),  # zona segura do Android
 }
