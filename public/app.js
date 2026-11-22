@@ -542,18 +542,72 @@
   $('#alca').addEventListener('click', () => $('#painel').classList.toggle('aberto'));
   $('#btn-local').addEventListener('click', () => pedirLocalizacao(true));
 
+  // ---------- localização ----------
+  // Depois da primeira leitura, o app acompanha a posição (watchPosition) enquanto está aberto:
+  // o ponto azul anda junto e as distâncias se refazem a cada 100 m. Depois de "Perto de mim",
+  // o mapa segue você até você arrastar o mapa. Com o app em segundo plano, para de acompanhar (bateria).
+  let vigia = null;
+  let seguir = false;
+  let ultimoDesenho = null; // posição usada no último recálculo da lista
+
+  mapa.on('dragstart', () => { seguir = false; });
+
+  function posicionar(pos) {
+    estado.origem = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    estado.usandoGps = true;
+    const ll = [estado.origem.lat, estado.origem.lng];
+    if (marcadorVoce) marcadorVoce.setLatLng(ll);
+    else {
+      marcadorVoce = L.marker(ll, {
+        icon: L.divIcon({ className: '', html: '<div class="voce"></div>', iconSize: [16, 16] }),
+        title: 'Você está aqui',
+        zIndexOffset: 2000,
+        interactive: false,
+      }).addTo(mapa);
+    }
+  }
+
+  /** Cada nova posição do acompanhamento contínuo. */
+  function aoMover(pos) {
+    posicionar(pos);
+    const perto = cidadeMaisProxima(estado.origem);
+    if (perto && perto !== estado.cidade) {
+      // entrou na área de outra cidade atendida (viagem): troca sozinho
+      ultimoDesenho = { ...estado.origem };
+      trocarCidade(perto.nome, true).then(() => { if (seguir) mapa.setView([estado.origem.lat, estado.origem.lng], 14); });
+      return;
+    }
+    if (seguir) mapa.panTo([estado.origem.lat, estado.origem.lng], { animate: true });
+    // com a tela de um posto aberta, espera fechar para não mexer no que a pessoa está lendo
+    if ($('#detalhe')?.open) return;
+    if (!ultimoDesenho || distanciaKm(ultimoDesenho, estado.origem) >= 0.1) {
+      ultimoDesenho = { ...estado.origem };
+      if (estado.cidade && estado.postos.length) desenhar();
+    }
+  }
+
+  function acompanhar() {
+    if (vigia !== null || !navigator.geolocation || document.hidden) return;
+    vigia = navigator.geolocation.watchPosition(aoMover, () => {}, { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 });
+  }
+  function pararDeAcompanhar() {
+    if (vigia === null) return;
+    navigator.geolocation.clearWatch(vigia);
+    vigia = null;
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pararDeAcompanhar();
+    else if (estado.usandoGps) acompanhar();
+  });
+
   function pedirLocalizacao(centralizar, semCidade) {
     if (!navigator.geolocation) return semCidade?.();
+    if (centralizar) seguir = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        estado.origem = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        estado.usandoGps = true;
-        if (marcadorVoce) marcadorVoce.remove();
-        marcadorVoce = L.marker([estado.origem.lat, estado.origem.lng], {
-          icon: L.divIcon({ className: '', html: '<div class="voce"></div>', iconSize: [16, 16] }),
-          title: 'Você está aqui',
-          zIndexOffset: 2000,
-        }).addTo(mapa);
+        posicionar(pos);
+        ultimoDesenho = { ...estado.origem };
+        acompanhar();
         const perto = cidadeMaisProxima(estado.origem);
         if (!perto && !estado.cidade) return semCidade?.();
         if (perto && perto !== estado.cidade) {
@@ -566,12 +620,18 @@
         desenhar();
       },
       () => {
+        seguir = false;
         semCidade?.();
         if (centralizar) alert('Não foi possível obter sua localização. As distâncias são calculadas a partir do centro da cidade.');
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 },
     );
   }
+
+  // Se a pessoa já deu permissão de localização antes, começa a acompanhar sozinho ao abrir o app.
+  navigator.permissions?.query({ name: 'geolocation' }).then((p) => {
+    if (p.state === 'granted') setTimeout(() => { if (!estado.usandoGps) pedirLocalizacao(false); }, 1500);
+  }).catch(() => {});
 
   // Instalação no celular (Android/Chrome mostra o botão; no iPhone: Compartilhar > Adicionar à Tela de Início)
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
