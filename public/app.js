@@ -16,7 +16,6 @@
   const salvarPreferencia = pref.salvar;
   const CURTO = { ...NOMES, gasolina_aditivada: 'Aditivada' };
   const FONTES = {
-    menor_preco: 'Nota Paraná / Menor Preço',
     anp: 'ANP',
     usuario: 'Informado por motorista',
     posto: 'Informado pelo posto',
@@ -85,9 +84,8 @@
   function rotaEstatica(url) {
     const u = new URL(url, 'http://x');
     if (u.pathname === '/api/config') return 'api/config.json';
-    if (u.pathname === '/api/postos') return `api/postos-${u.searchParams.get('combustivel')}.json`;
-    const m = u.pathname.match(/^\/api\/postos\/(\d+)$/);
-    if (m) return `api/posto-${m[1]}.json`;
+    // preços não têm cópia publicada no site: sem o Supabase, avisa que está sem conexão
+    if (u.pathname.startsWith('/api/postos')) throw new Error('sem conexão com a base de preços. Verifique a internet e tente de novo em instantes.');
     return url;
   }
 
@@ -200,7 +198,7 @@
     extrasEm = Date.now();
   }
 
-  /** Usa o preço informado pelo próprio posto quando ele é mais recente que o da nota fiscal. */
+  /** Usa o preço informado pelo próprio posto quando ele é mais recente que o da ANP ou o de motorista. */
   function aplicarPrecoDoPosto(p, combustivel) {
     const doPosto = extras.precos.get(p.id)?.[combustivel];
     if (doPosto && (!p.coletado_em || Date.parse(doPosto.informado_em) >= Date.parse(p.coletado_em))) {
@@ -366,19 +364,14 @@
   }
 
   function desenharRodape() {
-    const mp = estado.status.find((s) => s.fonte === 'menor_preco');
-    const anp = estado.status.find((s) => s.fonte === 'anp' && s.sucesso);
-    let st = '';
-    if (mp?.sucesso) st = `Última coleta ${haQuanto(mp.ultima_execucao)}.`;
-    else if (anp) st = `Nota Paraná em pausa; preços da ANP conferidos ${haQuanto(anp.ultima_execucao)}.`;
-    else if (mp) st = `Última coleta falhou ${haQuanto(mp.ultima_execucao)} — mostrando os últimos preços conhecidos.`;
+    const anp = (estado.status || []).find((s) => s.fonte === 'anp' && s.sucesso);
+    const st = anp ? `Pesquisa da ANP conferida ${haQuanto(anp.ultima_execucao)}.` : '';
     const zap = window.AJUSTES?.whatsappContato;
     const anuncie = zap
       ? ` · <a target="_blank" rel="noopener" href="https://wa.me/${zap}?text=${encodeURIComponent('Olá! Quero anunciar no AbasteceR.')}">Anuncie aqui</a>`
       : '';
-    $('#rodape').innerHTML = `Dados: <strong>Nota Paraná / Menor Preço</strong> (preços das notas fiscais eletrônicas),
-      <strong>ANP</strong> (levantamento semanal), postos e motoristas. ${st} Confira o preço na bomba.<br>
-      App independente, sem vínculo com o Governo do Paraná ou com a Receita Estadual.<br>
+    $('#rodape').innerHTML = `Dados: <strong>ANP</strong> (levantamento semanal de preços), <strong>postos</strong> e <strong>motoristas</strong>. ${st} Confira o preço na bomba.<br>
+      App independente, sem vínculo com a ANP ou com o governo.<br>
       ${APP_PLAY ? anuncie.replace(/^ · /, '') : '<a href="painel.html">É dono de posto? Atualize seus preços</a>' + anuncie}<br>
       <a href="termos.html">Termos de uso</a> · <a href="privacidade.html">Privacidade</a>`;
     desenharPatrocinio();
@@ -435,13 +428,13 @@
         <p class="end">${esc([p.bandeira, p.endereco, p.bairro].filter(Boolean).join(' · '))} · ${fmtKm(dist)}</p>
         ${promocao ? `<p class="promo"><span class="selo destaque">Promoção</span>${esc(promocao)}</p>` : ''}
         <table class="tabela"><tbody>${linhas}</tbody></table>
-        <p class="fonte-txt">Fonte: ${esc(fontes || '—')}. Horário = última venda em nota fiscal, atualização feita pelo posto ou dia da pesquisa da ANP.</p>
+        <p class="fonte-txt">Fonte: ${esc(fontes || '—')}. Horário = quando o posto ou um motorista informou, ou dia da pesquisa da ANP.</p>
         ${grafico(d.historico)}
         <div class="botoes">
           <a class="btn primario" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${destino}">Rota no Google Maps</a>
           <a class="btn" target="_blank" rel="noopener" href="https://waze.com/ul?ll=${destino}&navigate=yes">Abrir no Waze</a>
         </div>
-        ${estado.config.fontes.usuario ? formInformar(p.id) : ''}`;
+        ${estado.config.fontes.usuario ? formInformar(p.id, porComb.get(estado.combustivel)) : ''}`;
       ligarForm(p.id);
       avisar('detalhe', { posto: p, precos, caixa });
     } catch (e) {
@@ -468,10 +461,16 @@
       </svg></div>`;
   }
 
-  function formInformar(postoId) {
+  // Convite para o motorista: sem preço recente (ou só o da ANP, que é semanal), o formulário já vem aberto.
+  function formInformar(postoId, atual) {
     const opcoes = Object.entries(NOMES).map(([k, v]) =>
       `<option value="${k}" ${k === estado.combustivel ? 'selected' : ''}>${v}</option>`).join('');
-    return `<details class="informar"><summary>O preço mudou? Informe aqui</summary>
+    const convidar = !atual || atual.fonte === 'anp' || velho(atual.coletado_em);
+    const nome = (NOMES[estado.combustivel] || '').toLowerCase();
+    return `<details class="informar${convidar ? ' convite' : ''}"${convidar ? ' open' : ''}>
+      <summary>${convidar ? 'Viu o preço na bomba? Informe aqui' : 'O preço mudou? Informe aqui'}</summary>
+      ${convidar ? `<p class="convite-txt">${atual ? `O preço da ${esc(nome)} aqui é da pesquisa semanal da ANP.` : `Ainda não temos preço recente da ${esc(nome)} neste posto.`}
+        Se você passou por ele, informe o valor da bomba: leva 10 segundos e ajuda os outros motoristas.</p>` : ''}
       <form class="form" id="form-preco" data-posto="${postoId}">
         <label>Combustível <select name="combustivel">${opcoes}</select></label>
         <label>Preço por litro (R$) <input name="valor" inputmode="decimal" placeholder="Ex.: 6,29" required /></label>

@@ -22,7 +22,8 @@ module.exports = {
     menor_preco: {
       // Fonte NÃO OFICIAL, em modo protótipo. Desligue com MENOR_PRECO=0 ao iniciar,
       // ou mudando para false aqui.
-      ativa: process.env.MENOR_PRECO !== '0',
+      // DESLIGADA de vez em 23/11/2026: a SEFA-PR indeferiu o acesso e não autoriza coleta automatizada desses dados.
+      ativa: false,
       intervaloMinutos: 60,          // 1 coleta por hora
       pausaEntreRequisicoesMs: 4000, // espera entre uma consulta e outra
       maxPaginasPorCombustivel: 4,   // limite de segurança de volume

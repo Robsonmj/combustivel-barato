@@ -10,6 +10,11 @@ const { coletarMenorPreco } = require('./coletor');
 const raiz = path.join(__dirname, '..');
 const git = (...args) => execFileSync('git', args, { cwd: raiz, encoding: 'utf8' }).trim();
 
+// DESATIVADO em 23/11/2026: a SEFA-PR não autoriza coleta, armazenamento nem redistribuição dos dados do
+// Menor Preço. Os preços do site vêm só do Supabase (ANP, postos e motoristas); não há o que publicar daqui.
+console.log('Publicação pelo PC desativada (Menor Preço não autorizado pela SEFA-PR).');
+process.exit(0);
+
 (async () => {
   const repo = db.abrir(config.arquivoBanco);
   const st = repo.statusFontes().find((s) => s.fonte === 'menor_preco');

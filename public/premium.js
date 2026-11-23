@@ -469,8 +469,11 @@
     const comb = App.combustivel();
     const cidade = App.cidadeAtual()?.nome;
     const d = await Nuvem.rpc('api_tendencia', { comb, cid: cidade });
+    const semanas = semanasDaTendencia(d, comb, cidade);
     if (!d || d.dias_com_dados < 14 || !d.semana?.length) {
-      el.innerHTML = `<p>Ainda juntando dados de ${esc(NOMES[comb])} em ${esc(cidade)}. Com duas semanas de preços, aparece aqui o dia mais barato.</p>`;
+      el.innerHTML = `${semanas || `<p>Ainda juntando preços de ${esc(NOMES[comb])} em ${esc(cidade)}.</p>`}
+        <p class="fonte-txt">O dia da semana mais barato aparece quando postos e motoristas da cidade informarem preços por
+        duas semanas. Viu o preço na bomba? Informe no posto, no mapa.</p>`;
       return;
     }
     const sem = d.semana.filter((x) => x.dias >= 2);
@@ -494,7 +497,26 @@
     el.innerHTML = `<p>Em ${esc(cidade)}, ${esc(NOMES[comb]).toLowerCase()} costuma sair mais barato na <strong>${NOMES_DIA[melhor.dow]}</strong>
       e mais caro na <strong>${NOMES_DIA[pior.dow]}</strong>. ${tendencia}</p>
       <div class="dias">${barras}</div>
-      <p class="fonte-txt">Diferença média, em R$ por litro, de cada dia em relação à semana dele (últimos ${d.dias_com_dados} dias de notas fiscais). É tendência, não garantia.</p>`;
+      <p class="fonte-txt">Diferença média, em R$ por litro, de cada dia em relação à semana dele (últimos ${d.dias_com_dados} dias com preços
+      informados por postos e motoristas). É tendência, não garantia.</p>
+      ${semanas}`;
+  }
+
+  /** Semana a semana (pesquisa da ANP + postos + motoristas): a média da cidade subiu ou caiu? */
+  function semanasDaTendencia(d, comb, cidade) {
+    const ss = (d?.semanas || []).filter((x) => x.precos >= 5);
+    if (ss.length < 2) return '';
+    const ult = ss[ss.length - 1];
+    const ant = ss[ss.length - 2];
+    const dif = Number(ult.media) - Number(ant.media);
+    const frase = Math.abs(dif) < 0.02
+      ? 'ficou <strong>estável</strong>'
+      : `<strong>${dif > 0 ? 'subiu' : 'caiu'} ${reais(Math.abs(dif))}</strong>`;
+    const dm = (iso) => iso.slice(8, 10) + '/' + iso.slice(5, 7);
+    const linhas = ss.slice(-6).map((x) => `<tr><td>semana de ${dm(x.inicio)}</td><td>${reais(x.media)}</td></tr>`).join('');
+    return `<p>A média de ${esc(NOMES[comb]).toLowerCase()} em ${esc(cidade)} ${frase} da semana de ${dm(ant.inicio)} para a de ${dm(ult.inicio)}.</p>
+      <table class="tabela"><tbody>${linhas}</tbody></table>
+      <p class="fonte-txt">Média semanal da cidade, com a pesquisa de preços da ANP e os preços informados por postos e motoristas.</p>`;
   }
 
   // ---------- Cupons ----------

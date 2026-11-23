@@ -7,11 +7,11 @@ Troque o que está entre colchetes antes de enviar. Mande o PDF `folheto-postos.
 ```
 Olá, tudo bem? Aqui é o Robson, de Toledo.
 
-Criei o AbasteceR, um app gratuito, na Google Play, que mostra no mapa o preço da gasolina, etanol e diesel de cada posto de [CIDADE]. Os preços vêm das notas fiscais do Nota Paraná, então o [NOME DO POSTO] já aparece lá, com o preço de [GASOLINA R$ X,XX].
+Criei o AbasteceR, um app gratuito, na Google Play, que mostra no mapa o preço da gasolina, etanol e diesel de cada posto de [CIDADE]. O [NOME DO POSTO] já aparece no mapa, mas [SEM PREÇO ATUALIZADO / com o preço da pesquisa semanal da ANP, que pode estar desatualizado].
 
 Dá uma olhada: https://robsonmj.github.io/combustivel-barato/
 
-Posso te mostrar em 2 minutos como deixar o preço do seu posto sempre certo no app? É de graça.
+Com o cadastro gratuito, você mesmo coloca o preço do posto e ele aparece com o selo "Confirmado pelo posto". Os postos sem preço ficam com "—" no mapa, e o motorista acaba indo em quem mostra o preço. Posso te mostrar em 2 minutos? É de graça.
 ```
 
 ## 2. Se a pessoa responder (explicando o gratuito e o destaque)
@@ -44,8 +44,9 @@ Qualquer dúvida, me chama aqui.
 ## Dicas
 
 - Fale com o gerente ou o dono, não com o frentista.
-- Comece pelos postos que já estão com o preço mais baixo no app. Para eles, o selo gratuito é argumento fácil, e depois o destaque fica natural.
-- Antes de mandar, confira no app o preço que aparece para aquele posto e cite na mensagem. Isso mostra que o app já funciona com o posto dele.
+- Desde 23/11/2026 o app não usa mais o Nota Paraná / Menor Preço (a SEFA não autorizou). O argumento agora é: **sem cadastro, o posto fica sem preço ou com o preço semanal da ANP; com o cadastro gratuito, o preço certo é ele quem coloca.** Nunca diga que os preços vêm das notas fiscais.
+- Comece pelos postos que costumam ter preço baixo na cidade: são os que mais ganham mostrando o preço, e depois o destaque fica natural.
+- Antes de mandar, confira no app como aparece aquele posto (sem preço ou com o da ANP) e cite na mensagem.
 - Depois que o app for liberado para todos na Google Play, troque o link da mensagem 1 pelo link da loja.
 
 ## Tabela de valores

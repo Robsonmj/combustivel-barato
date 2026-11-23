@@ -7,14 +7,12 @@ para achar o posto mais barato e mais perto e traçar a rota.
 
 **https://robsonmj.github.io/combustivel-barato/** (abre no celular; "Perto de mim" funciona).
 
-Como o Menor Preço não aceita conexões dos servidores do GitHub (que ficam fora do Brasil),
-a coleta roda **neste PC** e só os preços são enviados ao GitHub:
+Os preços vêm do Supabase (pesquisa semanal da ANP, coletada no próprio servidor, e preços informados por
+postos e motoristas). O GitHub Actions só monta e publica as telas.
 
-- `publicar.bat` coleta (se a última coleta tiver mais de 50 min), grava os JSON em `publicado/api`
-  e envia ao GitHub. O GitHub Actions monta o site e publica em 1–2 minutos.
-- Para atualizar de hora em hora, o `publicar.bat` precisa rodar pelo Agendador de Tarefas do Windows
-  com o PC ligado. Com o PC desligado, o site continua no ar com os últimos preços (e mostra há quanto tempo).
-- Registro das execuções: `dados/publicar.log`.
+**Menor Preço / Nota Paraná: desligado de vez em 23/11/2026.** A SEFA-PR indeferiu o pedido de acesso e informou que
+não autoriza coleta automatizada, replicação, armazenamento ou redistribuição desses dados. Não religar
+(`supabase/coleta.sql`, `supabase/menor_preco_volta.sql`, `publicar.bat` e `src/adapters/menorPreco.js` ficam só como histórico).
 
 ## Como usar no PC
 
@@ -44,12 +42,11 @@ Comandos (no terminal, dentro desta pasta):
 
 | Fonte | Situação |
 |---|---|
-| **Menor Preço (Nota Paraná)** | Ligada. Usa o mesmo endereço público que o site usa. **Fonte não oficial**: 1 coleta por hora (5 consultas), pausa de 4 s entre consultas. Se o serviço recusar, a coleta para e o erro aparece no rodapé — o app não tenta contornar bloqueios. |
+| **ANP** | Ligada. Pesquisa semanal de preços (dados abertos), coletada no Supabase. |
+| Menor Preço (Nota Paraná) | **Desligada** em 23/11/2026 (SEFA-PR não autoriza). |
 | Motoristas | Ligada. Formulário na tela do posto (limite de 20 envios por hora). |
 | Painel do posto | Prevista (fonte `posto` já existe no banco). |
 
-Para **desligar o Menor Preço**: em `config.js`, troque `ativa` para `false` na seção `menor_preco`.
-Quando sair a autorização da Sefa-PR, basta trocar o arquivo `src/adapters/menorPreco.js` pelo canal oficial.
 
 ## Estrutura
 
@@ -64,8 +61,7 @@ public/                   telas (mapa com Leaflet + OpenStreetMap)
 dados/combustivel.db      banco de dados (criado automaticamente)
 ```
 
-Os postos são cadastrados automaticamente a partir dos dados do Menor Preço (nome, endereço e localização).
-O Menor Preço não informa o CNPJ; ele poderá ser preenchido depois (por exemplo, pelas NFC-e enviadas por motoristas).
+Os postos vêm do cadastro de revendedores da ANP (dados abertos).
 
 ## Próximos passos
 
