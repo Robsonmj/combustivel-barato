@@ -117,6 +117,17 @@
         <button class="btn primario">Atualizar preços</button>
         <p class="msg" role="status"></p>
       </form>
+      <h3>Preço automático (Conector AbasteceR)</h3>
+      <div data-f="conector">
+        <p style="font-size:14px">Instale o conector no computador do posto e o preço aparece sozinho no app, a cada venda, com o selo
+          "Confirmado pelo posto". Ele lê só o preço por litro das NFC-e do seu posto; nada mais sai do computador.</p>
+        <p class="conector-situacao" style="font-size:14px">Verificando…</p>
+        <div class="botoes">
+          <a class="btn" href="conector/AbasteceR-Conector.zip" download>Baixar o conector</a>
+          <button class="btn primario" type="button" data-gerar>Gerar chave do conector</button>
+        </div>
+        <p class="msg" role="status"></p>
+      </div>
       <h3>Destaque no app</h3>
       ${destaqueAtivo
         ? `<p><span class="estado aprovado">Ativo</span> até ${new Date(dest.ativo_ate + 'T12:00').toLocaleDateString('pt-BR')}. Seu posto aparece com o selo "Patrocinado" no topo da lista e com o pino em destaque.</p>
@@ -154,6 +165,8 @@
       if (!error) ev.target.reset();
     });
 
+    ligarConector(div.querySelector('[data-f="conector"]'), p.posto_id);
+
     const fPromo = div.querySelector('[data-f="promo"]');
     if (fPromo) {
       fPromo.addEventListener('submit', async (ev) => {
@@ -165,6 +178,28 @@
         msg.textContent = error ? 'Erro: ' + error.message : 'Promoção salva.';
       });
     }
+  }
+
+  async function ligarConector(el, postoId) {
+    const sit = el.querySelector('.conector-situacao');
+    const msg = el.querySelector('.msg');
+    const { data } = await sb.rpc('situacao_conector', { p: postoId });
+    sit.textContent = !data
+      ? 'Ainda não instalado.'
+      : data.ultimo_envio
+        ? `Funcionando: último envio em ${new Date(data.ultimo_envio).toLocaleString('pt-BR')}.`
+        : 'Chave gerada; aguardando o primeiro envio do conector.';
+    el.querySelector('[data-gerar]').addEventListener('click', async () => {
+      if (data && !confirm('Gerar uma chave nova desliga a anterior. O conector já instalado vai parar até receber a chave nova. Continuar?')) return;
+      msg.className = 'msg';
+      msg.textContent = 'Gerando…';
+      const { data: r, error } = await sb.rpc('gerar_chave_conector', { p: postoId });
+      if (error) { msg.className = 'msg erro'; msg.textContent = error.message; return; }
+      msg.className = 'msg ok';
+      msg.innerHTML = `Copie a chave abaixo e cole no instalador do conector (ela só aparece agora):
+        <input readonly value="${esc(r.chave)}" style="width:100%;font-family:monospace;margin-top:6px" onclick="this.select()" />
+        <small>O conector só aceita notas do CNPJ ${esc(r.cnpj)}.</small>`;
+    });
   }
 
   async function formNovoPedido(pedidos) {

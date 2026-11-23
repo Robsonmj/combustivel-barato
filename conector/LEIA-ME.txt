@@ -1,0 +1,27 @@
+CONECTOR ABASTECER
+
+O que faz
+  A cada 15 minutos, lê as NFC-e (notas de venda ao consumidor) que o próprio posto emitiu, na pasta onde o
+  sistema do posto guarda os XML, e envia ao AbasteceR só:
+    - o tipo de combustível (gasolina, aditivada, etanol, diesel S10, diesel S500, GNV);
+    - o preço por litro da última venda;
+    - o dia e a hora dessa venda;
+    - o CNPJ do posto (para conferir que as notas são mesmo deste posto).
+  Não envia a nota, nem dados de clientes (CPF, nome), nem valores totais, nem vendas da loja.
+  No app, o preço aparece com o selo "Confirmado pelo posto".
+
+Como instalar (uns 5 minutos)
+  1. Na Área do posto (https://robsonmj.github.io/combustivel-barato/painel.html), clique em
+     "Gerar chave do conector" e copie a chave.
+  2. Neste computador (o que fica ligado no posto e tem acesso às notas), dê dois cliques em Instalar.bat.
+  3. Cole a chave e escolha a pasta onde o sistema guarda os XML das NFC-e.
+  4. O instalador mostra os preços que encontrou. Se estiverem certos, confirme.
+  Não precisa de senha de administrador.
+
+Como parar
+  Dois cliques em Desinstalar.bat. Ou, na Área do posto, gere uma chave nova (a antiga deixa de funcionar).
+
+Registro do que foi enviado
+  %LOCALAPPDATA%\AbasteceR\conector.log
+
+Dúvidas: fale com o AbasteceR pelo WhatsApp que aparece na Área do posto.
