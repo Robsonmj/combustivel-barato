@@ -142,7 +142,7 @@
     const salva = lerPreferencia('cidade');
     const sel = $('#cidade');
     sel.innerHTML = estado.cidades.map((c) => `<option value="${esc(c.nome)}">${esc(c.nome)} · ${esc(c.uf)}</option>`).join('');
-    sel.addEventListener('change', () => trocarCidade(sel.value, true));
+    sel.addEventListener('change', () => { escolheuNaLista = true; trocarCidade(sel.value, true); });
     if (!estado.config.combustiveis.includes(estado.combustivel)) estado.combustivel = 'gasolina';
     montarChips();
     setInterval(carregar, 5 * 60 * 1000); // atualiza a cada 5 minutos
@@ -539,7 +539,7 @@
   });
 
   $('#alca').addEventListener('click', () => $('#painel').classList.toggle('aberto'));
-  $('#btn-local').addEventListener('click', () => pedirLocalizacao(true));
+  $('#btn-local').addEventListener('click', () => { escolheuNaLista = false; pedirLocalizacao(true); });
 
   // ---------- localização ----------
   // Depois da primeira leitura, o app acompanha a posição (watchPosition) enquanto está aberto:
@@ -551,11 +551,13 @@
   // Cidade em que o GPS viu a pessoa da última vez. O app só troca de cidade sozinho quando ela
   // CHEGA numa cidade nova (viagem); se ela escolheu outra cidade na lista, a escolha fica.
   let cidadeGps = lerPreferencia('cidadeGps');
+  let escolheuNaLista = false;
   function chegouEmOutra(perto) {
     if (!perto || perto.nome === cidadeGps) return false;
     cidadeGps = perto.nome;
     salvarPreferencia('cidadeGps', perto.nome);
-    return true;
+    // cidade escolhida na lista vale até a pessoa tocar em "Perto de mim": a localização não passa por cima
+    return !escolheuNaLista;
   }
 
   mapa.on('dragstart', () => { seguir = false; });
