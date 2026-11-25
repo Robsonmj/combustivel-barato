@@ -548,6 +548,15 @@
   let vigia = null;
   let seguir = false;
   let ultimoDesenho = null; // posição usada no último recálculo da lista
+  // Cidade em que o GPS viu a pessoa da última vez. O app só troca de cidade sozinho quando ela
+  // CHEGA numa cidade nova (viagem); se ela escolheu outra cidade na lista, a escolha fica.
+  let cidadeGps = lerPreferencia('cidadeGps');
+  function chegouEmOutra(perto) {
+    if (!perto || perto.nome === cidadeGps) return false;
+    cidadeGps = perto.nome;
+    salvarPreferencia('cidadeGps', perto.nome);
+    return true;
+  }
 
   mapa.on('dragstart', () => { seguir = false; });
 
@@ -570,7 +579,7 @@
   function aoMover(pos) {
     posicionar(pos);
     const perto = cidadeMaisProxima(estado.origem);
-    if (perto && perto !== estado.cidade) {
+    if (chegouEmOutra(perto) && perto !== estado.cidade) {
       // entrou na área de outra cidade atendida (viagem): troca sozinho
       ultimoDesenho = { ...estado.origem };
       trocarCidade(perto.nome, true).then(() => { if (seguir) mapa.setView([estado.origem.lat, estado.origem.lng], 14); });
@@ -609,7 +618,9 @@
         acompanhar();
         const perto = cidadeMaisProxima(estado.origem);
         if (!perto && !estado.cidade) return semCidade?.();
-        if (perto && perto !== estado.cidade) {
+        const chegou = chegouEmOutra(perto);
+        // "Perto de mim" sempre vai para a cidade onde a pessoa está; ao abrir o app, só se ela mudou de cidade
+        if (perto && perto !== estado.cidade && (centralizar || chegou || !estado.cidade)) {
           trocarCidade(perto.nome, true).then(() => {
             if (centralizar) mapa.setView([estado.origem.lat, estado.origem.lng], 14);
           });
