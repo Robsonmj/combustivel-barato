@@ -142,7 +142,8 @@
     const salva = lerPreferencia('cidade');
     const sel = $('#cidade');
     sel.innerHTML = estado.cidades.map((c) => `<option value="${esc(c.nome)}">${esc(c.nome)} · ${esc(c.uf)}</option>`).join('');
-    sel.addEventListener('change', () => { escolheuNaLista = true; trocarCidade(sel.value, true); });
+    // cidade escolhida na lista: o mapa vai para ela e para de seguir a pessoa (até tocar em "Perto de mim")
+    sel.addEventListener('change', () => { escolheuNaLista = true; seguir = false; trocarCidade(sel.value, true); });
     if (!estado.config.combustiveis.includes(estado.combustivel)) estado.combustivel = 'gasolina';
     montarChips();
     setInterval(carregar, 5 * 60 * 1000); // atualiza a cada 5 minutos
@@ -150,7 +151,7 @@
     // primeira visita: o app atende várias cidades, então não abre em nenhuma fixa.
     // Tenta a localização; se não der, pede para a pessoa escolher a cidade.
     pedirCidade('Localizando…', 'Procurando a cidade mais perto de você…');
-    pedirLocalizacao(false, () => pedirCidade('Escolha sua cidade', 'Escolha sua cidade no alto da tela para ver os postos.'));
+    pedirLocalizacao('abrir', () => pedirCidade('Escolha sua cidade', 'Escolha sua cidade no alto da tela para ver os postos.'));
   }
 
   /** Sem cidade escolhida: mostra o Paraná inteiro e um aviso no lugar da lista. */
@@ -539,7 +540,7 @@
   });
 
   $('#alca').addEventListener('click', () => $('#painel').classList.toggle('aberto'));
-  $('#btn-local').addEventListener('click', () => { escolheuNaLista = false; pedirLocalizacao(true); });
+  $('#btn-local').addEventListener('click', () => { escolheuNaLista = false; pedirLocalizacao('perto'); });
 
   // ---------- localização ----------
   // Depois da primeira leitura, o app acompanha a posição (watchPosition) enquanto está aberto:
@@ -610,31 +611,36 @@
     else if (estado.usandoGps) acompanhar();
   });
 
-  function pedirLocalizacao(centralizar, semCidade) {
+  /**
+   * modo 'abrir': ao abrir o app, vai uma vez para onde a pessoa está (cidade e mapa), sem ficar seguindo.
+   * modo 'perto': botão "Perto de mim": vai para onde a pessoa está e o mapa passa a segui-la.
+   * sem modo: só atualiza a posição (para calcular distâncias), sem mexer no mapa.
+   * Se a pessoa já escolheu uma cidade na lista, a localização não mexe na cidade nem no mapa.
+   */
+  function pedirLocalizacao(modo, semCidade) {
     if (!navigator.geolocation) return semCidade?.();
-    if (centralizar) seguir = true;
+    const centralizar = modo === 'perto' || modo === 'abrir';
+    if (modo === 'perto') seguir = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         posicionar(pos);
         ultimoDesenho = { ...estado.origem };
         acompanhar();
         const perto = cidadeMaisProxima(estado.origem);
+        chegouEmOutra(perto);
         if (!perto && !estado.cidade) return semCidade?.();
-        const chegou = chegouEmOutra(perto);
-        // "Perto de mim" sempre vai para a cidade onde a pessoa está; ao abrir o app, só se ela mudou de cidade
-        if (perto && perto !== estado.cidade && (centralizar || chegou || !estado.cidade)) {
-          trocarCidade(perto.nome, true).then(() => {
-            if (centralizar) mapa.setView([estado.origem.lat, estado.origem.lng], 14);
-          });
+        const mexer = centralizar && !escolheuNaLista && perto;
+        if (mexer && perto !== estado.cidade) {
+          trocarCidade(perto.nome, true).then(() => mapa.setView([estado.origem.lat, estado.origem.lng], 14));
           return;
         }
-        if (centralizar) mapa.setView([estado.origem.lat, estado.origem.lng], 14);
+        if (mexer) mapa.setView([estado.origem.lat, estado.origem.lng], 14);
         desenhar();
       },
       () => {
         seguir = false;
         semCidade?.();
-        if (centralizar) alert('Não foi possível obter sua localização. As distâncias são calculadas a partir do centro da cidade.');
+        if (modo === 'perto') alert('Não foi possível obter sua localização. As distâncias são calculadas a partir do centro da cidade.');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 },
     );
@@ -642,7 +648,7 @@
 
   // Se a pessoa já deu permissão de localização antes, começa a acompanhar sozinho ao abrir o app.
   navigator.permissions?.query({ name: 'geolocation' }).then((p) => {
-    if (p.state === 'granted') setTimeout(() => { if (!estado.usandoGps) pedirLocalizacao(false); }, 1500);
+    if (p.state === 'granted') setTimeout(() => { if (!estado.usandoGps) pedirLocalizacao('abrir'); }, 1500);
   }).catch(() => {});
 
   // Instalação no celular (Android/Chrome mostra o botão; no iPhone: Compartilhar > Adicionar à Tela de Início)
